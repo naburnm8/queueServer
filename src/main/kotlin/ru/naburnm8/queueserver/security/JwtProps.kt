@@ -8,4 +8,5 @@ import org.springframework.context.annotation.Configuration
 class JwtProps {
     lateinit var secret: String
     var ttlSeconds: Long = 3600
+    var refreshTtlSeconds: Long = 1209600
 }

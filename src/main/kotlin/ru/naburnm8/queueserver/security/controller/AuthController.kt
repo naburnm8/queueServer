@@ -1,5 +1,6 @@
 package ru.naburnm8.queueserver.security.controller
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -7,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import ru.naburnm8.queueserver.security.request.LoginRequest
+import ru.naburnm8.queueserver.security.request.LogoutRequest
+import ru.naburnm8.queueserver.security.request.RefreshRequest
 import ru.naburnm8.queueserver.security.request.RegisterRequest
 import ru.naburnm8.queueserver.security.response.AuthResponse
 import ru.naburnm8.queueserver.security.response.UserResponse
@@ -19,19 +22,30 @@ class AuthController(
     private val userService: UserService,
     private val authService: AuthService,
 ) {
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun register(@RequestBody req: RegisterRequest): UserResponse {
-        val user = userService.registerQueueConsumer(req)
-        return UserResponse(
-            email = user.email,
-            roles = user.roles.map { it.name.name }
+    @PostMapping("/login")
+    fun login(@RequestBody req: LoginRequest, http: HttpServletRequest): AuthResponse {
+        val tokens = authService.login(
+            loginRequest = req,
+            userAgent = http.getHeader("User-Agent"),
+            ip = http.remoteAddr
         )
+
+        return AuthResponse(accessToken = tokens.accessToken, refreshToken = tokens.refreshToken)
     }
 
-    @PostMapping("/login")
-    fun login(@RequestBody req: LoginRequest): AuthResponse {
-        val token = authService.login(req)
-        return AuthResponse(accessToken = token)
+    @PostMapping("/refresh")
+    fun refresh(@RequestBody req: RefreshRequest, http: HttpServletRequest): AuthResponse {
+        val tokens = authService.refresh(
+            refreshTokenValue = req.refreshToken,
+            userAgent = http.getHeader("User-Agent"),
+            ip = http.remoteAddr
+        )
+
+        return AuthResponse(accessToken = tokens.accessToken, refreshToken = tokens.refreshToken)
+    }
+
+    @PostMapping("/logout")
+    fun logout(@RequestBody req: LogoutRequest) {
+        authService.logout(req.refreshToken)
     }
 }
