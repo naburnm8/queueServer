@@ -23,24 +23,22 @@ class UserService (
         return userRepository.findByEmail(email)
     }
 
-    @Transactional
-    fun registerQueueConsumer(request: RegisterRequest): User {
-        val email = request.email
-        val rawPassword = request.password
 
-        if (userRepository.existsByEmail(email)) {
-            throw IllegalArgumentException(InnerExceptionCode.USER_ALREADY_EXISTS.toString())
+    @Transactional
+    fun createUser(email: String, rawPassword: String, role: RoleName): User {
+        val normalizedEmail = email.trim().lowercase()
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw IllegalArgumentException("Email already exists")
         }
 
-        val studentRole = getOrCreateRole(RoleName.ROLE_QCONSUMER)
+        val roleEntity = getOrCreateRole(role)
 
         val user = User(
-            email = email.trim().lowercase(),
+            email = normalizedEmail,
             passwordHash = passwordEncoder.encode(rawPassword) ?: throw RuntimeException(InnerExceptionCode.HASH_NOT_CALCULATED.toString()),
-            roles = mutableSetOf(studentRole)
+            roles = mutableSetOf(roleEntity)
         )
-
-        return userRepository.save(user)
+        return userRepository.saveAndFlush(user)
     }
 
     @Transactional

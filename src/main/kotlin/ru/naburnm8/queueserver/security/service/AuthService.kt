@@ -15,7 +15,6 @@ import ru.naburnm8.queueserver.security.entity.User
 import ru.naburnm8.queueserver.security.repository.RefreshTokenRepository
 import ru.naburnm8.queueserver.security.repository.UserRepository
 import ru.naburnm8.queueserver.security.request.LoginRequest
-import ru.naburnm8.queueserver.security.response.AuthResponse
 import java.time.Instant
 
 
@@ -60,10 +59,8 @@ class AuthService (
         val token = refreshTokenRepository.findByTokenHash(hash) ?: throw RuntimeException("Invalid refresh token")
         if (!token.isActive(now)) throw RuntimeException("Refresh token expired or revoked")
 
-        // Ротация: отзываем текущий
         token.revokedAt = now
 
-        // Создаём новый refresh
         val newValue = TokenUtil.newRefreshTokenValue()
         val newHash = TokenUtil.sha256Hex(newValue)
         token.replacedByHash = newHash
@@ -98,13 +95,13 @@ class AuthService (
     private fun issueAccessToken(user: User): String {
         val now = Instant.now()
         val exp = now.plusSeconds(props.ttlSeconds)
-        val roles = user.roles.map { it.name.name } // ROLE_*
+        val roles = user.roles.map { it.name.name }
 
         val claims = JwtClaimsSet.builder()
             .issuer("adaptive-queue")
             .issuedAt(now)
             .expiresAt(exp)
-            .subject(user.email) // или user.id.toString()
+            .subject(user.email)
             .claim("roles", roles)
             .build()
 
