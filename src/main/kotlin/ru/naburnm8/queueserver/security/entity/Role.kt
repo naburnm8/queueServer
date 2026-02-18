@@ -11,7 +11,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "roles")
-data class Role (
+class Role (
     @Id
     @Column(name = "id", nullable = false)
     val id: UUID = UUID.randomUUID(),

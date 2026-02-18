@@ -17,7 +17,7 @@ import java.util.UUID
 @Table(name = "users", uniqueConstraints = [
     UniqueConstraint(name = "uq_users_email", columnNames = ["email"])
 ])
-data class User (
+class User (
     @Id
     @Column(name = "id", nullable = false)
     val id: UUID = UUID.randomUUID(),

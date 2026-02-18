@@ -20,7 +20,7 @@ import java.util.UUID
         Index(name = "idx_student_telegram", columnList = "telegram"),
     ]
 )
-data class Student(
+class Student(
 
     @Id
     @Column(name = "user_id", nullable = false)

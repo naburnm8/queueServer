@@ -20,7 +20,7 @@ import java.util.UUID
         Index(name = "ix_refresh_tokens_hash", columnList = "token_hash", unique = true)
     ]
 )
-data class RefreshToken (
+class RefreshToken (
     @Id
     @Column(name = "id", nullable = false)
     val id: UUID = UUID.randomUUID(),
