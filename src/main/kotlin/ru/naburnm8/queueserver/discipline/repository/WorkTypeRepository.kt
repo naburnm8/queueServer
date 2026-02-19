@@ -5,5 +5,5 @@ import ru.naburnm8.queueserver.discipline.entity.WorkType
 import java.util.UUID
 
 interface WorkTypeRepository: JpaRepository<WorkType, UUID> {
-    fun findByDisciplineId(disciplineId: UUID): WorkType?
+    fun findByDisciplineId(disciplineId: UUID): List<WorkType>
 }

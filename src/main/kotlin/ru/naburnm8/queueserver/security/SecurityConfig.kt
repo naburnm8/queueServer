@@ -27,7 +27,6 @@ class SecurityConfig (
         val gac = JwtGrantedAuthoritiesConverter()
         gac.setAuthoritiesClaimName("roles")
         gac.setAuthorityPrefix("")
-
         converter.setJwtGrantedAuthoritiesConverter(gac)
         return converter
     }

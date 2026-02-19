@@ -101,7 +101,8 @@ class AuthService (
             .issuer("adaptive-queue")
             .issuedAt(now)
             .expiresAt(exp)
-            .subject(user.email)
+            .subject(user.id.toString())
+            .claim("email", user.email)
             .claim("roles", roles)
             .build()
 
