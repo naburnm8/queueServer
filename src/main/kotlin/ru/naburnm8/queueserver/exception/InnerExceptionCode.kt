@@ -9,4 +9,6 @@ enum class InnerExceptionCode {
     USER_NOT_FOUND,
     NO_SUCH_DISCIPLINE,
     DISCIPLINE_NOT_OWNED,
+    NO_SUCH_WORK_TYPE,
+    SCHEMA_CORRUPTION,
 }
