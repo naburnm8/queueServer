@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import ru.naburnm8.queueserver.discipline.request.AddWorkTypesRequest
 import ru.naburnm8.queueserver.discipline.request.CreateNewDisciplineRequest
 import ru.naburnm8.queueserver.discipline.response.DisciplinesResponse
 import ru.naburnm8.queueserver.discipline.response.WorkTypesResponse
@@ -43,6 +44,15 @@ class DisciplineController (
     fun getWorkTypesById(@PathVariable id: UUID): WorkTypesResponse {
         return WorkTypesResponse(
             workTypes = disciplineService.getWorkTypesByDiscipline(id)
+        )
+    }
+
+    @PostMapping("/{id}/workTypes")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR', 'ROLE_ADMIN')")
+    fun addWorkTypes(@PathVariable id: UUID, @RequestBody req: AddWorkTypesRequest): WorkTypesResponse {
+        val subject = JwtUtils.currentAuthenticatedUserId() ?: throw RuntimeException(InnerExceptionCode.USER_NOT_FOUND.toString())
+        return WorkTypesResponse(
+            workTypes = disciplineService.addWorkTypes(TransporterMapper.map(req, subject))
         )
     }
 
