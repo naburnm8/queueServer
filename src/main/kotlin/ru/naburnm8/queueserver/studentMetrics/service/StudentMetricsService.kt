@@ -73,8 +73,72 @@ class StudentMetricsService (
 
         }
     }
+    @Transactional
+    fun delete(id: UUID, requesterId: UUID) {
+        val toDelete = studentMetricsRepository.findById(id)
+        if (toDelete.isEmpty) return
+        val disciplineId = toDelete.get().discipline.id
 
-    //TODO: Метрики по дисциплине (Преподаватель)
-    //TODO: Мои метрики (Студент)
+        ownershipService.checkOwnership(requesterId, disciplineId)
+
+        studentMetricsRepository.deleteById(id)
+    }
+
+    @Transactional
+    fun metricsByDiscipline(disciplineId: UUID, requesterId: UUID): List<StudentMetricsTransporterOut> {
+        ownershipService.checkOwnership(disciplineId, requesterId)
+        val inDb = studentMetricsRepository.findByDisciplineId(disciplineId)
+        return inDb.map { entity -> StudentMetricsTransporterOut(
+            id = entity.id,
+            discipline = entity.discipline,
+            teacher = entity.teacher,
+            student = entity.student,
+            debtsCount = entity.debtsCount,
+            personalAchievementsScore = entity.personalAchievementsScore,
+        ) }
+    }
+
+    fun findAnyMetricsByDisciplineAndStudent(studentId: UUID, disciplineId: UUID, requesterId: UUID): StudentMetricsTransporterOut {
+        ownershipService.checkOwnership(requesterId, disciplineId)
+
+        val inDb = studentMetricsRepository.findByStudentIdAndDisciplineId(studentId, disciplineId) ?: throw RuntimeException("${InnerExceptionCode.NO_SUCH_STUDENT_METRIC}")
+        return StudentMetricsTransporterOut(
+            id = inDb.id,
+            discipline = inDb.discipline,
+            teacher = inDb.teacher,
+            student = inDb.student,
+            debtsCount = inDb.debtsCount,
+            personalAchievementsScore = inDb.personalAchievementsScore,
+        )
+    }
+
+    @Transactional
+    fun myMetrics(studentId: UUID, disciplineId: UUID? = null): List<StudentMetricsTransporterOut> {
+        if (disciplineId != null) {
+            val inDb = studentMetricsRepository.findByStudentIdAndDisciplineId(studentId, disciplineId) ?: throw RuntimeException("${InnerExceptionCode.NO_SUCH_STUDENT_METRIC}")
+
+            return listOf(
+                StudentMetricsTransporterOut(
+                id = inDb.id,
+                discipline = inDb.discipline,
+                teacher = inDb.teacher,
+                student = inDb.student,
+                debtsCount = inDb.debtsCount,
+                personalAchievementsScore = inDb.personalAchievementsScore,
+            )
+            )
+
+        } else {
+            val inDb = studentMetricsRepository.findByStudentId(studentId)
+            return inDb.map { entity -> StudentMetricsTransporterOut(
+                id = entity.id,
+                discipline = entity.discipline,
+                teacher = entity.teacher,
+                student = entity.student,
+                debtsCount = entity.debtsCount,
+                personalAchievementsScore = entity.personalAchievementsScore,
+            )}
+        }
+    }
 
 }
