@@ -47,4 +47,14 @@ class Teacher (
 
     @Column(name = "avatar_url")
     var avatarUrl: String? = null,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null) return false
+        if (other.javaClass == this.javaClass) {
+            other as Teacher
+            if (userId == other.userId) return true
+        }
+        return false
+    }
+}

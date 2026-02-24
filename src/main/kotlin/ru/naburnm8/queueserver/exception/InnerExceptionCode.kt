@@ -11,4 +11,5 @@ enum class InnerExceptionCode {
     DISCIPLINE_NOT_OWNED,
     NO_SUCH_WORK_TYPE,
     SCHEMA_CORRUPTION,
+    NO_SUCH_STUDENT_METRIC,
 }

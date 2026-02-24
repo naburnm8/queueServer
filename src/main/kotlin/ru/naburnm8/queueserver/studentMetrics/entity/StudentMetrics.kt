@@ -33,8 +33,8 @@ class StudentMetrics(
     val student: Student,
 
     @Column(name = "debts_count", nullable = false)
-    val debtsCount: Int,
+    var debtsCount: Int,
     @Column(name="personal_achievments_score", nullable = false)
-    val personalAchievementsScore: Int,
+    var personalAchievementsScore: Int,
 ) {
 }
