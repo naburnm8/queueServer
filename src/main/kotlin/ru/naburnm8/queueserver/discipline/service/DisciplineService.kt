@@ -13,6 +13,7 @@ import ru.naburnm8.queueserver.discipline.transporter.CreateNewDisciplineTranspo
 import ru.naburnm8.queueserver.discipline.transporter.DisciplineTransporter
 import ru.naburnm8.queueserver.discipline.transporter.WorkTypeTransporter
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
+import ru.naburnm8.queueserver.profile.entity.Teacher
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
 import java.util.UUID
 
@@ -21,8 +22,27 @@ class DisciplineService (
     private val disciplineRepository: DisciplineRepository,
     private val workTypeRepository: WorkTypeRepository,
     private val teacherRepository: TeacherRepository,
+    private val ownershipService: OwnershipService
 ) {
+    @Transactional
+    fun addOwnersToDiscipline(requesterId: UUID, idsToAdd: List<UUID>, disciplineId: UUID) {
+        ownershipService.checkOwnership(requesterId, disciplineId)
+        val discipline = disciplineRepository.findById(disciplineId).get()
 
+        val teachersToAdd = mutableListOf<Teacher>()
+
+        for (id in idsToAdd) {
+            val teacher = teacherRepository.findById(id)
+            if (teacher.isEmpty) throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
+            teachersToAdd.add(teacher.get())
+        }
+
+        discipline.owners.addAll(teachersToAdd)
+        disciplineRepository.save(discipline)
+
+    }
+
+    @Transactional
     fun createNewDiscipline(request: CreateNewDisciplineTransporter): Discipline {
         val owner = teacherRepository.findById(request.identity)
 
@@ -38,6 +58,7 @@ class DisciplineService (
         return disciplineRepository.save(newDiscipline)
     }
 
+    @Transactional
     fun addWorkTypes(request: AddWorkTypesTransporter): List<WorkType> {
         val discipline = disciplineRepository.findById(request.disciplineId)
         val requester = teacherRepository.findByUserId(request.identity)
@@ -61,10 +82,12 @@ class DisciplineService (
         }
     }
 
+    @Transactional
     fun getWorkTypesByDiscipline(disciplineId: UUID): List<WorkType> {
         return workTypeRepository.findByDisciplineId(disciplineId)
     }
 
+    @Transactional
     fun getDisciplines(ownerId: UUID? = null): List<Discipline> {
         return if (ownerId == null) {
             disciplineRepository.findAll()

@@ -12,4 +12,6 @@ enum class InnerExceptionCode {
     NO_SUCH_WORK_TYPE,
     SCHEMA_CORRUPTION,
     NO_SUCH_STUDENT_METRIC,
+    NO_SUCH_QUEUE_PLAN,
+    QUEUE_PLAN_NOT_OWNED,
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import ru.naburnm8.queueserver.discipline.request.AddOwnersRequest
 import ru.naburnm8.queueserver.discipline.request.AddWorkTypesRequest
 import ru.naburnm8.queueserver.discipline.request.CreateNewDisciplineRequest
 import ru.naburnm8.queueserver.discipline.request.DeleteRequest
@@ -31,6 +32,13 @@ import java.util.UUID
 class DisciplineController (
     private val disciplineService: DisciplineService,
 ) {
+
+    @PostMapping("/{disciplineId}/addOwners")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
+    fun addOwners(@PathVariable disciplineId: UUID, @RequestBody addOwnersRequest: AddOwnersRequest) {
+        val subject = JwtUtils.currentAuthenticatedUserId() ?: throw RuntimeException(InnerExceptionCode.USER_NOT_FOUND.toString())
+        disciplineService.addOwnersToDiscipline(subject, addOwnersRequest.idsToAdd, disciplineId)
+    }
 
     @GetMapping()
     @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")

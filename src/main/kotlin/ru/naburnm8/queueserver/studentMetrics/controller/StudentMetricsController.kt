@@ -80,6 +80,7 @@ class StudentMetricsController (
         return TransporterMapper.map(found)
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
     @DeleteMapping("/student/metrics/{metricId}")
     fun deleteMetrics(@PathVariable metricId: UUID) {
         studentMetricsService.delete(metricId, getSubject())
