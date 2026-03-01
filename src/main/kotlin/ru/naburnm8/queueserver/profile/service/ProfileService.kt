@@ -2,6 +2,7 @@ package ru.naburnm8.queueserver.profile.service
 
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.profile.entity.Student
 import ru.naburnm8.queueserver.profile.entity.Teacher
 import ru.naburnm8.queueserver.profile.repository.StudentRepository
@@ -19,6 +20,11 @@ class ProfileService (
 ) {
     @Transactional
     fun registerStudent(req: RegisterStudentRequest): Student {
+        val existingUser = userService.findByEmailOrNull(req.email)
+        if (existingUser != null) {
+            throw RuntimeException("${InnerExceptionCode.USER_ALREADY_EXISTS}")
+        }
+
         val user = userService.createUser(req.email, req.password, RoleName.ROLE_QCONSUMER)
 
         val student = Student(
@@ -36,6 +42,11 @@ class ProfileService (
 
     @Transactional
     fun registerTeacher(req: RegisterTeacherRequest): Teacher {
+        val existingUser = userService.findByEmailOrNull(req.email)
+        if (existingUser != null) {
+            throw RuntimeException("${InnerExceptionCode.USER_ALREADY_EXISTS}")
+        }
+
         val user = userService.createUser(req.email, req.password, RoleName.ROLE_QOPERATOR)
 
         val teacher = Teacher(

@@ -6,8 +6,6 @@ import ru.naburnm8.queueserver.discipline.entity.Discipline
 import ru.naburnm8.queueserver.discipline.entity.WorkType
 import ru.naburnm8.queueserver.discipline.repository.DisciplineRepository
 import ru.naburnm8.queueserver.discipline.repository.WorkTypeRepository
-import ru.naburnm8.queueserver.discipline.request.AddWorkTypesRequest
-import ru.naburnm8.queueserver.discipline.request.CreateNewDisciplineRequest
 import ru.naburnm8.queueserver.discipline.transporter.AddWorkTypesTransporter
 import ru.naburnm8.queueserver.discipline.transporter.CreateNewDisciplineTransporter
 import ru.naburnm8.queueserver.discipline.transporter.DisciplineTransporter
@@ -22,11 +20,11 @@ class DisciplineService (
     private val disciplineRepository: DisciplineRepository,
     private val workTypeRepository: WorkTypeRepository,
     private val teacherRepository: TeacherRepository,
-    private val ownershipService: OwnershipService
+    private val disciplineOwnershipService: DisciplineOwnershipService
 ) {
     @Transactional
     fun addOwnersToDiscipline(requesterId: UUID, idsToAdd: List<UUID>, disciplineId: UUID) {
-        ownershipService.checkOwnership(requesterId, disciplineId)
+        disciplineOwnershipService.checkOwnership(requesterId, disciplineId)
         val discipline = disciplineRepository.findById(disciplineId).get()
 
         val teachersToAdd = mutableListOf<Teacher>()

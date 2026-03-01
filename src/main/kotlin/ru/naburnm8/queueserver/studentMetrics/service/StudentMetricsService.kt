@@ -3,7 +3,7 @@ package ru.naburnm8.queueserver.studentMetrics.service
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import ru.naburnm8.queueserver.discipline.repository.DisciplineRepository
-import ru.naburnm8.queueserver.discipline.service.OwnershipService
+import ru.naburnm8.queueserver.discipline.service.DisciplineOwnershipService
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.profile.repository.StudentRepository
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
@@ -19,12 +19,12 @@ class StudentMetricsService (
     private val teacherRepository: TeacherRepository,
     private val studentRepository: StudentRepository,
     private val disciplineRepository: DisciplineRepository,
-    private val ownershipService: OwnershipService
+    private val disciplineOwnershipService: DisciplineOwnershipService
 ) {
 
     @Transactional
     fun upsert(data: StudentMetricsTransporterIn): StudentMetricsTransporterOut {
-        ownershipService.checkOwnership(data.teacherId, data.disciplineId)
+        disciplineOwnershipService.checkOwnership(data.teacherId, data.disciplineId)
         if (data.id != null) {
             // update
             val inDb = studentMetricsRepository.findById(data.id)
@@ -79,14 +79,14 @@ class StudentMetricsService (
         if (toDelete.isEmpty) return
         val disciplineId = toDelete.get().discipline.id
 
-        ownershipService.checkOwnership(requesterId, disciplineId)
+        disciplineOwnershipService.checkOwnership(requesterId, disciplineId)
 
         studentMetricsRepository.deleteById(id)
     }
 
     @Transactional
     fun metricsByDiscipline(disciplineId: UUID, requesterId: UUID): List<StudentMetricsTransporterOut> {
-        ownershipService.checkOwnership(disciplineId, requesterId)
+        disciplineOwnershipService.checkOwnership(disciplineId, requesterId)
         val inDb = studentMetricsRepository.findByDisciplineId(disciplineId)
         return inDb.map { entity -> StudentMetricsTransporterOut(
             id = entity.id,
@@ -99,7 +99,7 @@ class StudentMetricsService (
     }
 
     fun findAnyMetricsByDisciplineAndStudent(studentId: UUID, disciplineId: UUID, requesterId: UUID): StudentMetricsTransporterOut {
-        ownershipService.checkOwnership(requesterId, disciplineId)
+        disciplineOwnershipService.checkOwnership(requesterId, disciplineId)
 
         val inDb = studentMetricsRepository.findByStudentIdAndDisciplineId(studentId, disciplineId) ?: throw RuntimeException("${InnerExceptionCode.NO_SUCH_STUDENT_METRIC}")
         return StudentMetricsTransporterOut(

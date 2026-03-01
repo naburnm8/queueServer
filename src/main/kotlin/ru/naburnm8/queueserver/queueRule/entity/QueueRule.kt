@@ -1,39 +1,41 @@
-package ru.naburnm8.queueserver.customParameter.entity
+package ru.naburnm8.queueserver.queueRule.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import ru.naburnm8.queueserver.profile.entity.Teacher
 import ru.naburnm8.queueserver.queuePlan.entity.QueuePlan
 import java.util.UUID
 
-// Задел на будущее
 @Entity
 @Table(
-    name = "custom_parameters",
+    name = "queue_rules",
     indexes = [
-        Index(name = "ix_custom_parameters_plan", columnList = "queue_plan_id")
+        Index(name = "ix_queue_rules_plan", columnList = "queue_plan_id")
     ]
 )
-class CustomParameter (
+class QueueRule (
     @Id
     @Column(name = "id", nullable = false)
     val id: UUID = UUID.randomUUID(),
-
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "queue_plan_id", nullable = false)
     var queuePlan: QueuePlan,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    val creator: Teacher,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 32)
+    var type: RuleType,
+
+    @Column(name = "enabled", nullable = false)
+    var enabled: Boolean = true,
 
     @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
-    val payload: String
-) {
-}
+    var payload: String
+)

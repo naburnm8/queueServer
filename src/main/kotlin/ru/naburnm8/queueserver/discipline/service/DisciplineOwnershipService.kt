@@ -7,7 +7,7 @@ import ru.naburnm8.queueserver.profile.repository.TeacherRepository
 import java.util.UUID
 
 @Service
-class OwnershipService (
+class DisciplineOwnershipService (
     private val teacherRepository: TeacherRepository,
     private val disciplineRepository: DisciplineRepository,
 ) {

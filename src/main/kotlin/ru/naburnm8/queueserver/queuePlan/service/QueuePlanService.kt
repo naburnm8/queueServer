@@ -4,14 +4,13 @@ import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import ru.naburnm8.queueserver.discipline.repository.DisciplineRepository
 import ru.naburnm8.queueserver.discipline.response.DisciplineDto
-import ru.naburnm8.queueserver.discipline.service.OwnershipService
+import ru.naburnm8.queueserver.discipline.service.DisciplineOwnershipService
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
 import ru.naburnm8.queueserver.profile.response.TeacherDto
 import ru.naburnm8.queueserver.queuePlan.entity.QueuePlan
 import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import ru.naburnm8.queueserver.queuePlan.repository.QueuePlanRepository
-import ru.naburnm8.queueserver.queuePlan.response.QueuePlanResponse
 import ru.naburnm8.queueserver.queuePlan.transporter.QueuePlanShortTransporter
 import ru.naburnm8.queueserver.queuePlan.transporter.QueuePlanTransporter
 import ru.naburnm8.queueserver.queuePlan.transporter.TransporterMapper
@@ -22,7 +21,7 @@ class QueuePlanService (
     private val queuePlanRepository: QueuePlanRepository,
     private val teacherRepository: TeacherRepository,
     private val disciplineRepository: DisciplineRepository,
-    private val ownershipService: OwnershipService
+    private val disciplineOwnershipService: DisciplineOwnershipService
 ) {
     @Transactional
     fun findById(id: UUID): QueuePlanTransporter {
@@ -34,7 +33,7 @@ class QueuePlanService (
     @Transactional
     fun createPlan(plan: QueuePlanTransporter): QueuePlanTransporter {
         if (plan.id != null) throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
-        ownershipService.checkOwnership(plan.createdByTeacherId, plan.disciplineId)
+        disciplineOwnershipService.checkOwnership(plan.createdByTeacherId, plan.disciplineId)
         val disciplineRef = disciplineRepository.getReferenceById(plan.disciplineId)
         val teacherRef = teacherRepository.getReferenceById(plan.createdByTeacherId)
         val planEntity = QueuePlan(
@@ -58,7 +57,7 @@ class QueuePlanService (
     @Transactional
     fun updatePlan(plan: QueuePlanTransporter): QueuePlanTransporter {
         if (plan.id == null) throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
-        ownershipService.checkOwnership(plan.createdByTeacherId, plan.disciplineId)
+        disciplineOwnershipService.checkOwnership(plan.createdByTeacherId, plan.disciplineId)
         val planEntity = queuePlanRepository.findById(plan.id).get()
         planEntity.title = plan.title
         planEntity.useTime = plan.useTime
