@@ -11,6 +11,7 @@ import ru.naburnm8.queueserver.profile.response.TeacherDto
 import ru.naburnm8.queueserver.queuePlan.entity.QueuePlan
 import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import ru.naburnm8.queueserver.queuePlan.repository.QueuePlanRepository
+import ru.naburnm8.queueserver.queuePlan.response.QueuePlanResponse
 import ru.naburnm8.queueserver.queuePlan.transporter.QueuePlanShortTransporter
 import ru.naburnm8.queueserver.queuePlan.transporter.QueuePlanTransporter
 import ru.naburnm8.queueserver.queuePlan.transporter.TransporterMapper
@@ -23,6 +24,12 @@ class QueuePlanService (
     private val disciplineRepository: DisciplineRepository,
     private val ownershipService: OwnershipService
 ) {
+    @Transactional
+    fun findById(id: UUID): QueuePlanTransporter {
+        val queuePlan = queuePlanRepository.findById(id)
+        if (queuePlan.isEmpty) throw RuntimeException("${InnerExceptionCode.NO_SUCH_QUEUE_PLAN}")
+        return TransporterMapper.toTransporter(queuePlan.get())
+    }
 
     @Transactional
     fun createPlan(plan: QueuePlanTransporter): QueuePlanTransporter {

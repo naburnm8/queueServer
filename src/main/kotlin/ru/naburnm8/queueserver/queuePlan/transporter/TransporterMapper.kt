@@ -36,6 +36,7 @@ object TransporterMapper {
             entity.wTime,
             entity.useAchievements,
             entity.wAchievements,
+            entity.createdAt
         )
     }
 
@@ -53,6 +54,23 @@ object TransporterMapper {
             transporter.useAchievements,
             wAchievements = if(transporter.wAchievements in 0.0..1.0) transporter.wAchievements else 1.0,
             createdAt = createdAt,
+        )
+    }
+
+    fun map(transporter: QueuePlanTransporter): QueuePlanResponse {
+        return QueuePlanResponse(
+            id = transporter.id,
+            transporter.disciplineId,
+            transporter.createdByTeacherId,
+            transporter.title,
+            transporter.status,
+            transporter.useDebts,
+            wDebts = if(transporter.wDebts in 0.0..1.0) transporter.wDebts else 1.0,
+            transporter.useTime,
+            wTime = if(transporter.wTime in 0.0..1.0) transporter.wTime else 1.0,
+            transporter.useAchievements,
+            wAchievements = if(transporter.wAchievements in 0.0..1.0) transporter.wAchievements else 1.0,
+            createdAt = transporter.createdAt ?: Instant.now(),
         )
     }
 }
