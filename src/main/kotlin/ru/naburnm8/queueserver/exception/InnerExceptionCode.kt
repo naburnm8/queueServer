@@ -15,4 +15,6 @@ enum class InnerExceptionCode {
     NO_SUCH_QUEUE_PLAN,
     QUEUE_PLAN_NOT_OWNED,
     NO_SUCH_RULE,
+    NO_SUCH_INVITATION,
+    INVITATION_DEPLETED
 }
