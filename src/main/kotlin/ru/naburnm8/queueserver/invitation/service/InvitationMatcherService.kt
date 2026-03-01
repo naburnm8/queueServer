@@ -41,11 +41,13 @@ class InvitationMatcherService (
 
     @Transactional
     fun matches(queuePlanId: UUID, studentId: UUID? = null, code: String? = null, targetGroup: String? = null): UUID? {
+        var found: UUID? = null
         if (code != null && (targetGroup != null || studentId != null)) {
-            return checkWithCodeRestriction(queuePlanId, code, studentId, targetGroup)
+            found = checkWithCodeRestriction(queuePlanId, code, studentId, targetGroup)
         }
-        return check(queuePlanId, code, studentId, targetGroup)
+        found =  check(queuePlanId, code, studentId, targetGroup)
 
+        return found
     }
 
     @Transactional
