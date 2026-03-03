@@ -97,11 +97,37 @@ class SubmissionRequestService(
     }
 
     @Transactional
+    fun getMyRequest(queuePlanId: UUID, requesterId: UUID): OutSubmissionRequestTransporter {
+        val existing = submissionRequestRepository.findByQueuePlanIdAndStudentUserId(queuePlanId, requesterId)
+            ?: throw RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}")
+
+        return TransporterMapper.toTransporter(existing)
+    }
+
+
+    // Teacher actions
+
+    @Transactional
     fun changeStatus(queuePlanId: UUID, teacherId: UUID, submissionStatusId: UUID, newStatus: SubmissionStatus) {
         queuePlanOwnershipService.checkOwnership(queuePlanId, teacherId)
         val existing = submissionRequestRepository.findById(submissionStatusId).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}") }
-        existing.status = newStatus
+        if (newStatus == SubmissionStatus.ENQUEUED || newStatus == SubmissionStatus.REJECTED) existing.status = newStatus
+        else throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
         submissionRequestRepository.save(existing)
+    }
+
+    @Transactional
+    fun getPendingRequests(queuePlanId: UUID, requesterId: UUID): List<OutSubmissionRequestTransporter> {
+        queuePlanOwnershipService.checkOwnership(queuePlanId, requesterId)
+
+        return submissionRequestRepository.findAllByQueuePlanIdAndStatus(queuePlanId, SubmissionStatus.PENDING).map { TransporterMapper.toTransporter(it) }
+    }
+
+    @Transactional
+    fun getAllRequests(queuePlanId: UUID, requesterId: UUID): List<OutSubmissionRequestTransporter> {
+        queuePlanOwnershipService.checkOwnership(queuePlanId, requesterId)
+
+        return submissionRequestRepository.findAllByQueuePlanId(queuePlanId).map { TransporterMapper.toTransporter(it) }
     }
 
     private fun addAllItems(entity: SubmissionRequest, items: List<RequestItemTransporter>) {
