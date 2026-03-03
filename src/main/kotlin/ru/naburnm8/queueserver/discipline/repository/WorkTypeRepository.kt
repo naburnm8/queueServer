@@ -6,4 +6,6 @@ import java.util.UUID
 
 interface WorkTypeRepository: JpaRepository<WorkType, UUID> {
     fun findByDisciplineId(disciplineId: UUID): List<WorkType>
+
+    fun findAllByIdIn(ids: List<UUID>): List<WorkType>
 }
