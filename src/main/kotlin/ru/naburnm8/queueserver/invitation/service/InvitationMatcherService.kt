@@ -45,8 +45,9 @@ class InvitationMatcherService (
         if (code != null && (targetGroup != null || studentId != null)) {
             found = checkWithCodeRestriction(queuePlanId, code, studentId, targetGroup)
         }
-        found =  check(queuePlanId, code, studentId, targetGroup)
-
+        if (found == null) {
+            found = check(queuePlanId, code, studentId, targetGroup)
+        }
         return found
     }
 
