@@ -117,17 +117,11 @@ class SubmissionRequestService(
     }
 
     @Transactional
-    fun getPendingRequests(queuePlanId: UUID, requesterId: UUID): List<OutSubmissionRequestTransporter> {
+    fun getAllRequests(queuePlanId: UUID, requesterId: UUID, status: SubmissionStatus?): List<OutSubmissionRequestTransporter> {
         queuePlanOwnershipService.checkOwnership(queuePlanId, requesterId)
 
-        return submissionRequestRepository.findAllByQueuePlanIdAndStatus(queuePlanId, SubmissionStatus.PENDING).map { TransporterMapper.toTransporter(it) }
-    }
-
-    @Transactional
-    fun getAllRequests(queuePlanId: UUID, requesterId: UUID): List<OutSubmissionRequestTransporter> {
-        queuePlanOwnershipService.checkOwnership(queuePlanId, requesterId)
-
-        return submissionRequestRepository.findAllByQueuePlanId(queuePlanId).map { TransporterMapper.toTransporter(it) }
+        return if (status == null ) submissionRequestRepository.findAllByQueuePlanId(queuePlanId).map { TransporterMapper.toTransporter(it) }
+        else submissionRequestRepository.findAllByQueuePlanIdAndStatus(queuePlanId, status).map { TransporterMapper.toTransporter(it) }
     }
 
     private fun addAllItems(entity: SubmissionRequest, items: List<RequestItemTransporter>) {
