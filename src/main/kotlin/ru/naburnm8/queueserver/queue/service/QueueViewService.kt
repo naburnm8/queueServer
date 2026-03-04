@@ -1,6 +1,6 @@
 package ru.naburnm8.queueserver.queue.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
+
 import org.springframework.stereotype.Service
 import ru.bmstu.naburnm8.adaptiveQueue.AdaptiveQueue
 import ru.bmstu.naburnm8.adaptiveQueue.event.EventIn
@@ -23,6 +23,7 @@ import ru.naburnm8.queueserver.studentMetrics.repository.StudentMetricsRepositor
 import ru.naburnm8.queueserver.submissionRequest.repository.SubmissionRequestRepository
 import ru.bmstu.naburnm8.adaptiveQueue.event.EventOut
 import ru.naburnm8.queueserver.queue.data.QueueEntryView
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
 import kotlin.collections.emptyList
@@ -62,12 +63,11 @@ class QueueViewService (
 
         val entries = models.map {m -> QueueEntry(m, params) }
 
-        val aq = AdaptiveQueue (
-            entries = emptyList(),
+        val aq = AdaptiveQueue<QueueRequestModel> (
+            entries = entries,
             rules = runtimeRules,
         )
 
-        entries.forEach {aq.enqueue(it)}
 
         val peekAll = aq.handleEvent(EventIn.PeekAll()) as EventOut.PeekResponseAll
 

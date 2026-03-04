@@ -1,7 +1,8 @@
 package ru.naburnm8.queueserver.queueRule.response
 
-import com.fasterxml.jackson.databind.JsonNode
+
 import ru.naburnm8.queueserver.queueRule.entity.RuleType
+import tools.jackson.databind.JsonNode
 import java.util.UUID
 
 data class QueueRuleResponse(

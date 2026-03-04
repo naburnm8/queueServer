@@ -1,8 +1,10 @@
 package ru.naburnm8.queueserver.queueRule.service
 
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+
+
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
@@ -17,6 +19,8 @@ import ru.naburnm8.queueserver.queueRule.entity.RuleType
 import ru.naburnm8.queueserver.queueRule.repository.QueueRuleRepository
 import ru.naburnm8.queueserver.queueRule.transporter.RuleTransporter
 import ru.naburnm8.queueserver.queueRule.transporter.TransporterMapper
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 
 @Service
@@ -27,6 +31,8 @@ class QueueRuleService (
     private val queuePlanOwnershipService: QueuePlanOwnershipService,
     private val queueRuntimeService: QueueRuntimeService
     ) {
+
+
 
     @Transactional
     fun addRule(queuePlanId: UUID, requesterId: UUID, request: RuleTransporter): RuleTransporter {

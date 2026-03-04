@@ -43,9 +43,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
 
-    implementation("ru.bmstu.naburnm8:adaptiveQueue:1.0-SNAPSHOT")
+    implementation("ru.bmstu.naburnm8:adaptiveQueue:1.0.2-SNAPSHOT")
 
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")

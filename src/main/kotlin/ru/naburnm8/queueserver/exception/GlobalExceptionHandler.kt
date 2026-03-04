@@ -1,6 +1,7 @@
 package ru.naburnm8.queueserver.exception
 
 import org.springframework.http.HttpStatus
+import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -12,6 +13,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handle(e: Exception): ErrorDto {
+        println(e.stackTrace.joinToString("\n"))
         return ErrorDto(message = ExceptionCodeMapper.map(e))
     }
 

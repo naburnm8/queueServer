@@ -10,7 +10,11 @@ import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.ColumnTransformer
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import ru.naburnm8.queueserver.queuePlan.entity.QueuePlan
+import tools.jackson.databind.JsonNode
 import java.util.UUID
 
 @Entity
@@ -36,6 +40,7 @@ class QueueRule (
     @Column(name = "enabled", nullable = false)
     var enabled: Boolean = true,
 
+    @ColumnTransformer(write = "?::jsonb")
     @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
     var payload: String
 )

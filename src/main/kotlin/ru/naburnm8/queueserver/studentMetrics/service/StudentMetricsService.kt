@@ -96,7 +96,7 @@ class StudentMetricsService (
 
     @Transactional
     fun metricsByDiscipline(disciplineId: UUID, requesterId: UUID): List<StudentMetricsTransporterOut> {
-        disciplineOwnershipService.checkOwnership(disciplineId, requesterId)
+        disciplineOwnershipService.checkOwnership(requesterId, disciplineId)
         val inDb = studentMetricsRepository.findByDisciplineId(disciplineId)
         return inDb.map { entity -> StudentMetricsTransporterOut(
             id = entity.id,

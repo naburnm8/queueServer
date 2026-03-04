@@ -1,9 +1,10 @@
 package ru.naburnm8.queueserver.queueRule.transporter
 
-import com.fasterxml.jackson.databind.ObjectMapper
+
 import ru.naburnm8.queueserver.queueRule.entity.QueueRule
 import ru.naburnm8.queueserver.queueRule.request.QueueRuleRequest
 import ru.naburnm8.queueserver.queueRule.response.QueueRuleResponse
+import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 
 object TransporterMapper {
