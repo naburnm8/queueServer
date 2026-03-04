@@ -9,4 +9,5 @@ interface DisciplineRepository: JpaRepository<Discipline, UUID> {
 
     @Query("SELECT DISTINCT d FROM Discipline d JOIN d.owners o WHERE o.userId = :ownerId ORDER BY d.name")
     fun findAllByOwnerId(ownerId: UUID): List<Discipline>
+
 }

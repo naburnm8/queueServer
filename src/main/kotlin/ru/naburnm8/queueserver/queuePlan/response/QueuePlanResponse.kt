@@ -17,4 +17,5 @@ data class QueuePlanResponse(
     val useAchievements: Boolean,
     val wAchievements: Double,
     val createdAt: Instant,
+    val slotDurationMinutes: Int,
 )

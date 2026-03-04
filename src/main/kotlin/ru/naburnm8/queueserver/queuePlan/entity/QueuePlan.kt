@@ -64,4 +64,7 @@ class QueuePlan(
 
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
+
+    @Column(name = "slot_duration_minutes", nullable = false)
+    var slotDurationMinutes: Int = 15,
 )

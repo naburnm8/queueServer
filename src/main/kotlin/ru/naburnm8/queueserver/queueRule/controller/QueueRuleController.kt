@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.naburnm8.queueserver.queueRule.request.QueueRuleRequest
 import ru.naburnm8.queueserver.queueRule.response.QueueRuleResponse
 import ru.naburnm8.queueserver.queueRule.service.QueueRuleService
+import ru.naburnm8.queueserver.queueRule.transporter.RuleTransporter
 import ru.naburnm8.queueserver.queueRule.transporter.TransporterMapper
 import ru.naburnm8.queueserver.security.JwtUtils
 import java.util.UUID
@@ -54,6 +55,20 @@ class QueueRuleController (
     fun removeRule(@PathVariable queuePlanId: UUID, @PathVariable ruleId: UUID) {
         val subject = JwtUtils.getSubject()
         ruleService.deleteRule(queuePlanId, subject, ruleId)
+    }
+
+    @PostMapping("/{queuePlanId}/rules/{ruleId}/enable")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
+    fun enableRule(@PathVariable queuePlanId: UUID, @PathVariable ruleId: UUID) {
+        val subject = JwtUtils.getSubject()
+        ruleService.changeEnabled(queuePlanId, subject, ruleId, true)
+    }
+
+    @PostMapping("/{queuePlanId}/rules/{ruleId}/disable")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
+    fun disableRule(@PathVariable queuePlanId: UUID, @PathVariable ruleId: UUID) {
+        val subject = JwtUtils.getSubject()
+        ruleService.changeEnabled(queuePlanId, subject, ruleId, false)
     }
 
 

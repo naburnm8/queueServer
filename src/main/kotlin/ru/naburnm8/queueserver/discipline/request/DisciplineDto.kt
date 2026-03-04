@@ -5,4 +5,5 @@ import java.util.UUID
 data class DisciplineDto(
     val id: UUID? = null,
     val name: String,
+    val personalAchievementsScoreLimit: Int,
 )

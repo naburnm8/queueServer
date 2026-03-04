@@ -20,4 +20,5 @@ enum class InnerExceptionCode {
     QUEUE_CLOSED,
     SUBMISSION_ALREADY_EXISTS,
     NO_SUCH_SUBMISSION_REQUEST,
+    ACCESS_DENIED
 }

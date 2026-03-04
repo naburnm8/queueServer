@@ -5,4 +5,5 @@ import java.util.UUID
 data class DisciplineTransporter(
     val id: UUID,
     val name: String,
+    val personalAchievementsScoreLimit: Int,
 )

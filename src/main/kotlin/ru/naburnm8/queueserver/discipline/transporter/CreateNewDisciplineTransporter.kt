@@ -5,4 +5,5 @@ import java.util.UUID
 data class CreateNewDisciplineTransporter (
     val identity: UUID,
     val name: String,
+    val personalAchievementsScoreLimit: Int ,
 )

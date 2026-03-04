@@ -7,6 +7,7 @@ import ru.naburnm8.queueserver.discipline.service.DisciplineOwnershipService
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.profile.repository.StudentRepository
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
+import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
 import ru.naburnm8.queueserver.studentMetrics.entity.StudentMetrics
 import ru.naburnm8.queueserver.studentMetrics.repository.StudentMetricsRepository
 import ru.naburnm8.queueserver.studentMetrics.transporter.StudentMetricsTransporterOut
@@ -19,7 +20,8 @@ class StudentMetricsService (
     private val teacherRepository: TeacherRepository,
     private val studentRepository: StudentRepository,
     private val disciplineRepository: DisciplineRepository,
-    private val disciplineOwnershipService: DisciplineOwnershipService
+    private val disciplineOwnershipService: DisciplineOwnershipService,
+    private val queueRuntimeService: QueueRuntimeService
 ) {
 
     @Transactional
@@ -34,6 +36,9 @@ class StudentMetricsService (
             inDbGet.debtsCount = data.debtsCount
             inDbGet.personalAchievementsScore = data.personalAchievementsScore
             val saved = studentMetricsRepository.save(inDbGet)
+
+            queueRuntimeService.refreshByDiscipline(saved.discipline.id)
+
             return StudentMetricsTransporterOut(
                 id = saved.id,
                 discipline = saved.discipline,
@@ -59,6 +64,9 @@ class StudentMetricsService (
                         personalAchievementsScore = data.personalAchievementsScore,
                     )
                 )
+
+                queueRuntimeService.refreshByDiscipline(saved.discipline.id)
+
                 return StudentMetricsTransporterOut(
                     id = saved.id,
                     discipline = saved.discipline,
@@ -82,6 +90,8 @@ class StudentMetricsService (
         disciplineOwnershipService.checkOwnership(requesterId, disciplineId)
 
         studentMetricsRepository.deleteById(id)
+
+        queueRuntimeService.refreshByDiscipline(toDelete.get().discipline.id)
     }
 
     @Transactional

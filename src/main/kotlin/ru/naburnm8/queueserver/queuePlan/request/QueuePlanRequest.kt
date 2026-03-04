@@ -14,4 +14,5 @@ data class QueuePlanRequest (
     val wTime: Double,
     val useAchievements: Boolean,
     val wAchievements: Double,
+    val slotDurationMinutes: Int,
 )

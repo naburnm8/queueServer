@@ -8,6 +8,7 @@ import ru.naburnm8.queueserver.discipline.service.DisciplineOwnershipService
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
 import ru.naburnm8.queueserver.profile.response.TeacherDto
+import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
 import ru.naburnm8.queueserver.queuePlan.entity.QueuePlan
 import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import ru.naburnm8.queueserver.queuePlan.repository.QueuePlanRepository
@@ -21,7 +22,8 @@ class QueuePlanService (
     private val queuePlanRepository: QueuePlanRepository,
     private val teacherRepository: TeacherRepository,
     private val disciplineRepository: DisciplineRepository,
-    private val disciplineOwnershipService: DisciplineOwnershipService
+    private val disciplineOwnershipService: DisciplineOwnershipService,
+    private val queueRuntimeService: QueueRuntimeService
 ) {
     @Transactional
     fun findById(id: UUID): QueuePlanTransporter {
@@ -69,6 +71,8 @@ class QueuePlanService (
 
         queuePlanRepository.save(planEntity)
 
+        queueRuntimeService.refresh(planEntity.id)
+
         return TransporterMapper.toTransporter(planEntity)
     }
 
@@ -92,7 +96,8 @@ class QueuePlanService (
             status = entity.status,
             discipline = DisciplineDto(
                 id = entity.discipline.id,
-                name = entity.discipline.name
+                name = entity.discipline.name,
+                personalAchievementsScoreLimit = entity.discipline.personalAchievementsScoreLimit,
             ),
             teacher = TeacherDto(
                 id = entity.createdBy.userId ?: UUID.fromString("00000000-0000-0000-0000-000000000000"),
@@ -101,7 +106,8 @@ class QueuePlanService (
                 department = entity.createdBy.department,
                 telegram = entity.createdBy.telegram ?: "",
                 avatarUrl = entity.createdBy.avatarUrl ?: ""
-            )
+            ),
+            slotDurationMinutes = entity.slotDurationMinutes
         ) }
     }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
+import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
 import ru.naburnm8.queueserver.queuePlan.repository.QueuePlanRepository
 import ru.naburnm8.queueserver.queuePlan.service.QueuePlanOwnershipService
 import ru.naburnm8.queueserver.queueRule.body.GroupBonusRuleBody
@@ -23,7 +24,8 @@ class QueueRuleService (
     private val objectMapper: ObjectMapper,
     private val ruleRepository: QueueRuleRepository,
     private val queuePlanRepository: QueuePlanRepository,
-    private val queuePlanOwnershipService: QueuePlanOwnershipService
+    private val queuePlanOwnershipService: QueuePlanOwnershipService,
+    private val queueRuntimeService: QueueRuntimeService
     ) {
 
     @Transactional
@@ -41,6 +43,8 @@ class QueueRuleService (
             payload = objectMapper.writeValueAsString(request.payload)
         )
         ruleRepository.save(entity)
+
+        queueRuntimeService.refresh(queuePlanId)
 
         return TransporterMapper.toTransporter(entity, objectMapper)
     }
@@ -64,6 +68,8 @@ class QueueRuleService (
 
         ruleRepository.save(entity)
 
+        queueRuntimeService.refresh(queuePlanId)
+
         return TransporterMapper.toTransporter(entity, objectMapper)
     }
 
@@ -71,6 +77,7 @@ class QueueRuleService (
     fun deleteRule(queuePlanId: UUID, requesterId: UUID, ruleId: UUID) {
         queuePlanOwnershipService.checkOwnership(queuePlanId, requesterId)
         ruleRepository.deleteById(ruleId)
+        queueRuntimeService.refresh(queuePlanId)
     }
 
     @Transactional
@@ -87,6 +94,7 @@ class QueueRuleService (
         val entity = found.get()
         entity.enabled = enabled
         ruleRepository.save(entity)
+        queueRuntimeService.refresh(queuePlanId)
     }
 
 

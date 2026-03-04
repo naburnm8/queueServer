@@ -13,6 +13,7 @@ import ru.naburnm8.queueserver.discipline.transporter.WorkTypeTransporter
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.profile.entity.Teacher
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
+import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
 import java.util.UUID
 
 @Service
@@ -20,7 +21,8 @@ class DisciplineService (
     private val disciplineRepository: DisciplineRepository,
     private val workTypeRepository: WorkTypeRepository,
     private val teacherRepository: TeacherRepository,
-    private val disciplineOwnershipService: DisciplineOwnershipService
+    private val disciplineOwnershipService: DisciplineOwnershipService,
+    private val queueRuntimeService: QueueRuntimeService
 ) {
     @Transactional
     fun addOwnersToDiscipline(requesterId: UUID, idsToAdd: List<UUID>, disciplineId: UUID) {
@@ -132,10 +134,13 @@ class DisciplineService (
         if (requester !in disciplineInDB.get().owners) throw RuntimeException(InnerExceptionCode.DISCIPLINE_NOT_OWNED.toString())
 
         disciplineInDB.get().name = updated.name
+        disciplineInDB.get().personalAchievementsScoreLimit = updated.personalAchievementsScoreLimit
 
         val newDiscipline = disciplineRepository.save(disciplineInDB.get())
 
-        return DisciplineTransporter(newDiscipline.id, newDiscipline.name)
+        queueRuntimeService.refreshByDiscipline(newDiscipline.id)
+
+        return DisciplineTransporter(newDiscipline.id, newDiscipline.name, personalAchievementsScoreLimit = newDiscipline.personalAchievementsScoreLimit)
     }
     @Transactional
     fun updateDisciplines(updated: List<DisciplineTransporter>, identity: UUID): List<DisciplineTransporter> {

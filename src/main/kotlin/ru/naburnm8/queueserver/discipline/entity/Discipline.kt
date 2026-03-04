@@ -28,4 +28,7 @@ class Discipline(
         inverseJoinColumns = [JoinColumn(name = "teacher_id", referencedColumnName = "user_id")]
     )
     var owners: MutableSet<Teacher> = mutableSetOf(),
+
+    @Column(name = "personal_achievements_score_limit", nullable = false)
+    var personalAchievementsScoreLimit: Int = 100,
 )

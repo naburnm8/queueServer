@@ -11,5 +11,6 @@ data class QueuePlanShortResponse(
     val title: String,
     val discipline: DisciplineDto,
     val status: QueueStatus,
-    val teacher: TeacherDto
+    val teacher: TeacherDto,
+    val slotDurationMinutes: Int,
 )

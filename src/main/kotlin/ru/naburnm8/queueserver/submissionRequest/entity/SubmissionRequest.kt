@@ -72,7 +72,6 @@ class SubmissionRequest (
 
     fun removeItem(item: SubmissionRequestItem) {
         if (items.remove(item)) {
-            // clear owning side so orphanRemoval (or FK updates) take effect
             item.request = null
             updatedAt = Instant.now()
         }

@@ -44,7 +44,7 @@ class DisciplineController (
     @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
     fun getMyDisciplines(): DisciplinesResponse {
         return DisciplinesResponse(
-            disciplines = disciplineService.getDisciplines(JwtUtils.currentAuthenticatedUserId()).map {discipline -> DisciplineDto(id = discipline.id, name = discipline.name)}
+            disciplines = disciplineService.getDisciplines(JwtUtils.currentAuthenticatedUserId()).map {discipline -> DisciplineDto(id = discipline.id, name = discipline.name, personalAchievementsScoreLimit = discipline.personalAchievementsScoreLimit)}
         )
     }
 
@@ -54,7 +54,7 @@ class DisciplineController (
         val subject = JwtUtils.currentAuthenticatedUserId() ?: throw RuntimeException(InnerExceptionCode.USER_NOT_FOUND.toString())
         val discipline = disciplineService.createNewDiscipline(TransporterMapper.map(req, subject))
             return DisciplinesResponse(
-            disciplines = listOf(DisciplineDto(discipline.id, discipline.name))
+            disciplines = listOf(DisciplineDto(discipline.id, discipline.name, discipline.personalAchievementsScoreLimit))
         )
     }
 
@@ -92,8 +92,8 @@ class DisciplineController (
     @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
     fun updateDisciplines(@RequestBody req: UpdateDisciplinesRequest): DisciplinesResponse {
         val subject = JwtUtils.currentAuthenticatedUserId() ?: throw RuntimeException(InnerExceptionCode.USER_NOT_FOUND.toString())
-        val out = disciplineService.updateDisciplines(req.newDisciplines.map {dto -> DisciplineTransporter(id = dto.id ?: throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}"), name = dto.name)}, subject)
-        return DisciplinesResponse(out.map {transporter -> DisciplineDto(transporter.id, transporter.name)})
+        val out = disciplineService.updateDisciplines(req.newDisciplines.map {dto -> DisciplineTransporter(id = dto.id ?: throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}"), name = dto.name, dto.personalAchievementsScoreLimit)}, subject)
+        return DisciplinesResponse(out.map {transporter -> DisciplineDto(transporter.id, transporter.name, personalAchievementsScoreLimit = transporter.personalAchievementsScoreLimit)})
     }
 
     @PutMapping("/workTypes")

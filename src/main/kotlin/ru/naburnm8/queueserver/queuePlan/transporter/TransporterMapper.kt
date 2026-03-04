@@ -20,6 +20,7 @@ object TransporterMapper {
             request.wTime,
             request.useAchievements,
             request.wAchievements,
+            slotDurationMinutes = request.slotDurationMinutes,
         )
     }
 
@@ -36,7 +37,8 @@ object TransporterMapper {
             entity.wTime,
             entity.useAchievements,
             entity.wAchievements,
-            entity.createdAt
+            entity.createdAt,
+            slotDurationMinutes = entity.slotDurationMinutes,
         )
     }
 
@@ -54,6 +56,7 @@ object TransporterMapper {
             transporter.useAchievements,
             wAchievements = if(transporter.wAchievements in 0.0..1.0) transporter.wAchievements else 1.0,
             createdAt = createdAt,
+            slotDurationMinutes = transporter.slotDurationMinutes,
         )
     }
 
@@ -71,6 +74,7 @@ object TransporterMapper {
             transporter.useAchievements,
             wAchievements = if(transporter.wAchievements in 0.0..1.0) transporter.wAchievements else 1.0,
             createdAt = transporter.createdAt ?: Instant.now(),
+            slotDurationMinutes = transporter.slotDurationMinutes,
         )
     }
 }

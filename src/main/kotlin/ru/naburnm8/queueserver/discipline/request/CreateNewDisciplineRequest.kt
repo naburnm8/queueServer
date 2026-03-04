@@ -4,5 +4,6 @@ import java.util.UUID
 
 
 data class CreateNewDisciplineRequest (
-    val name: String
+    val name: String,
+    val personalAchievementsScoreLimit: Int,
 )

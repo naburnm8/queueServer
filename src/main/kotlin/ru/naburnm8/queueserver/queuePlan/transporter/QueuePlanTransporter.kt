@@ -16,5 +16,6 @@ data class QueuePlanTransporter(
     val wTime: Double,
     val useAchievements: Boolean,
     val wAchievements: Double,
-    val createdAt: Instant? = null
+    val createdAt: Instant? = null,
+    val slotDurationMinutes: Int,
 )

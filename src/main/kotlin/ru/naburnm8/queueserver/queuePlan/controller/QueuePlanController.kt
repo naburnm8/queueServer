@@ -67,6 +67,7 @@ class QueuePlanController (
             transporter.discipline,
             transporter.status,
             transporter.teacher,
+            transporter.slotDurationMinutes
         ) }
     }
 

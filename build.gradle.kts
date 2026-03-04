@@ -27,6 +27,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 extra["snippetsDir"] = file("build/generated-snippets")
@@ -43,6 +44,9 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("tools.jackson.module:jackson-module-kotlin")
+
+    implementation("ru.bmstu.naburnm8:adaptiveQueue:1.0-SNAPSHOT")
+
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")

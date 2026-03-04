@@ -6,6 +6,7 @@ import ru.naburnm8.queueserver.discipline.repository.WorkTypeRepository
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.invitation.service.InvitationMatcherService
 import ru.naburnm8.queueserver.profile.repository.StudentRepository
+import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
 import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import ru.naburnm8.queueserver.queuePlan.repository.QueuePlanRepository
 import ru.naburnm8.queueserver.queuePlan.service.QueuePlanOwnershipService
@@ -27,7 +28,8 @@ class SubmissionRequestService(
     private val invitationMatcherService: InvitationMatcherService,
     private val queuePlanOwnershipService: QueuePlanOwnershipService,
     private val studentRepository: StudentRepository,
-    private val workTypeRepository: WorkTypeRepository
+    private val workTypeRepository: WorkTypeRepository,
+    private val queueRuntimeService: QueueRuntimeService
 ) {
 
     @Transactional
@@ -62,6 +64,10 @@ class SubmissionRequestService(
             invitationMatcherService.consume(invite)
         }
 
+        if (saved.status == SubmissionStatus.ENQUEUED) {
+            queueRuntimeService.refresh(saved.queuePlan.id)
+        }
+
         return TransporterMapper.toTransporter(saved)
 
     }
@@ -84,6 +90,10 @@ class SubmissionRequestService(
 
         val saved = submissionRequestRepository.save(existing)
 
+        if (saved.status == SubmissionStatus.ENQUEUED) {
+            queueRuntimeService.refresh(saved.queuePlan.id)
+        }
+
         return TransporterMapper.toTransporter(saved)
 
     }
@@ -92,6 +102,8 @@ class SubmissionRequestService(
     fun deleteForStudent(queuePlanId: UUID, requesterId: UUID) {
         val existing = submissionRequestRepository.findByQueuePlanIdAndStudentUserId(queuePlanId, requesterId)
             ?: throw RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}")
+
+        queueRuntimeService.refresh(existing.queuePlan.id)
 
         submissionRequestRepository.delete(existing)
     }
@@ -113,6 +125,9 @@ class SubmissionRequestService(
         val existing = submissionRequestRepository.findById(submissionStatusId).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}") }
         if (newStatus == SubmissionStatus.ENQUEUED || newStatus == SubmissionStatus.REJECTED) existing.status = newStatus
         else throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
+
+        if (newStatus != existing.status) queueRuntimeService.refresh(existing.queuePlan.id)
+
         submissionRequestRepository.save(existing)
     }
 

@@ -17,7 +17,8 @@ object TransporterMapper {
     fun map(req: CreateNewDisciplineRequest, identity: UUID): CreateNewDisciplineTransporter {
         return CreateNewDisciplineTransporter(
             identity = identity,
-            name = req.name
+            name = req.name,
+            personalAchievementsScoreLimit = req.personalAchievementsScoreLimit,
         )
     }
 }

@@ -15,6 +15,7 @@ object TransporterMapper {
             discipline = DisciplineDto(
                 id = transporter.discipline.id,
                 name = transporter.discipline.name,
+                personalAchievementsScoreLimit = transporter.discipline.personalAchievementsScoreLimit
             ),
             teacher = TeacherDto(
                 id = transporter.teacher.userId ?: UUID.fromString("00000000-0000-0000-0000-000000000000"),
