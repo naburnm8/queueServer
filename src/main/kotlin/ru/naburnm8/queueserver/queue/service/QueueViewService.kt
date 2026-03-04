@@ -58,7 +58,7 @@ class QueueViewService (
         }
 
         val params = buildParamsFromPlan(plan)
-        val runtimeRules = buildRuntimeRules(plan, queueRuleRepository.findAllByQueuePlanId(plan.id))
+        val runtimeRules = buildRuntimeRules(queueRuleRepository.findAllByQueuePlanId(plan.id))
 
         val entries = models.map {m -> QueueEntry(m, params) }
 
@@ -131,7 +131,7 @@ class QueueViewService (
         return params
     }
 
-    private fun buildRuntimeRules(plan: QueuePlan, rules: List<QueueRule>): List<PriorityRule<QueueRequestModel>> {
+    private fun buildRuntimeRules(rules: List<QueueRule>): List<PriorityRule<QueueRequestModel>> {
         val out = mutableListOf<PriorityRule<QueueRequestModel>>()
 
         for (rule in rules) {
