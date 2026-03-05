@@ -33,6 +33,7 @@ interface SubmissionRequestRepository: JpaRepository<SubmissionRequest, UUID> {
         left join fetch r.items i
         left join fetch i.workType wt
         where r.queuePlan.id = :queuePlanId and r.status = ru.naburnm8.queueserver.submissionRequest.entity.SubmissionStatus.ENQUEUED
+        order by r.createdAt
     """)
     fun findEnqueuedWithItems(queuePlanId: UUID): List<SubmissionRequest>
 

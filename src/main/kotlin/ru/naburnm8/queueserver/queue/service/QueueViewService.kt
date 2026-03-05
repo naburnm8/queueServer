@@ -23,6 +23,7 @@ import ru.naburnm8.queueserver.studentMetrics.repository.StudentMetricsRepositor
 import ru.naburnm8.queueserver.submissionRequest.repository.SubmissionRequestRepository
 import ru.bmstu.naburnm8.adaptiveQueue.event.EventOut
 import ru.naburnm8.queueserver.queue.data.QueueEntryView
+import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
@@ -36,8 +37,12 @@ class QueueViewService (
     private val queueRuleRepository: QueueRuleRepository,
     private val objectMapper: ObjectMapper,
 ) {
-    fun buildSnapshot(queuePlanId: UUID, version: Long): QueueSnapshot {
+    fun buildSnapshot(queuePlanId: UUID, version: Long, ignoreStatus: Boolean = false): QueueSnapshot {
         val plan = queuePlanRepository.findById(queuePlanId).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_QUEUE_PLAN}") }
+
+        if (plan.status != QueueStatus.ACTIVE && !ignoreStatus) {
+            throw RuntimeException("${InnerExceptionCode.QUEUE_CLOSED}")
+        }
 
         val enqueuedRequests = submissionRequestRepository.findEnqueuedWithItems(queuePlanId)
 
