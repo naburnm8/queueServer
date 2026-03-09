@@ -11,6 +11,7 @@ import ru.naburnm8.queueserver.profile.request.RegisterStudentRequest
 import ru.naburnm8.queueserver.profile.request.RegisterTeacherRequest
 import ru.naburnm8.queueserver.security.RoleName
 import ru.naburnm8.queueserver.security.service.UserService
+import java.util.UUID
 
 @Service
 class ProfileService (
@@ -19,7 +20,7 @@ class ProfileService (
     private val teacherRepository: TeacherRepository,
 ) {
     @Transactional
-    fun registerStudent(req: RegisterStudentRequest): Student {
+    fun registerStudent(req: RegisterStudentRequest, integrationId: UUID? = null, externalUserId: UUID? = null): Student {
         val existingUser = userService.findByEmailOrNull(req.email)
         if (existingUser != null) {
             throw RuntimeException("${InnerExceptionCode.USER_ALREADY_EXISTS}")
@@ -41,7 +42,7 @@ class ProfileService (
     }
 
     @Transactional
-    fun registerTeacher(req: RegisterTeacherRequest): Teacher {
+    fun registerTeacher(req: RegisterTeacherRequest, integrationId: UUID? = null, externalUserId: UUID? = null): Teacher {
         val existingUser = userService.findByEmailOrNull(req.email)
         if (existingUser != null) {
             throw RuntimeException("${InnerExceptionCode.USER_ALREADY_EXISTS}")

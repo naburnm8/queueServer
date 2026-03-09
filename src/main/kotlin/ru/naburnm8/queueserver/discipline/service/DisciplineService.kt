@@ -178,4 +178,23 @@ class DisciplineService (
         }
         return out
     }
+
+    @Transactional
+    fun upsert(discipline: DisciplineTransporter): Discipline {
+        val existing = disciplineRepository.findById(discipline.id)
+        if (existing.isPresent) {
+            val disc = existing.get()
+            disc.name = discipline.name
+            disc.personalAchievementsScoreLimit = discipline.personalAchievementsScoreLimit
+            return disciplineRepository.save(disc)
+        } else {
+            val newDisc = Discipline(
+                id = discipline.id,
+                name = discipline.name,
+                personalAchievementsScoreLimit = discipline.personalAchievementsScoreLimit,
+                owners = mutableSetOf()
+            )
+            return disciplineRepository.save(newDisc)
+        }
+    }
 }

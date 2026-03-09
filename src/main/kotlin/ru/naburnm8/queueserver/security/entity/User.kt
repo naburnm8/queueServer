@@ -7,8 +7,10 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import ru.naburnm8.queueserver.integration.entity.Integration
 import java.time.Instant
 import java.util.UUID
 
@@ -41,5 +43,12 @@ class User (
         inverseJoinColumns = [JoinColumn(name = "role_id", referencedColumnName = "id")]
     )
     var roles: MutableSet<Role> = mutableSetOf(),
+
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    val createdWithIntegration: Integration? = null,
+
+    @Column(name = "integration_id", nullable = true)
+    val externalId: UUID? = null
 ) {
 }

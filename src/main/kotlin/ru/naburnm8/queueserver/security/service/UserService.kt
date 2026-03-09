@@ -4,18 +4,22 @@ import jakarta.transaction.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
+import ru.naburnm8.queueserver.integration.entity.Integration
+import ru.naburnm8.queueserver.integration.repository.IntegrationRepository
 import ru.naburnm8.queueserver.security.RoleName
 import ru.naburnm8.queueserver.security.entity.Role
 import ru.naburnm8.queueserver.security.entity.User
 import ru.naburnm8.queueserver.security.repository.RoleRepository
 import ru.naburnm8.queueserver.security.repository.UserRepository
 import ru.naburnm8.queueserver.security.request.RegisterRequest
+import java.util.UUID
 
 @Service
 class UserService (
     private val userRepository: UserRepository,
     private val roleRepository: RoleRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val integrationRepository: IntegrationRepository
 ) {
 
     @Transactional
@@ -25,7 +29,7 @@ class UserService (
 
 
     @Transactional
-    fun createUser(email: String, rawPassword: String, role: RoleName): User {
+    fun createUser(email: String, rawPassword: String, role: RoleName, integrationId: UUID? = null, externalUserId: UUID? = null): User {
         val normalizedEmail = email.trim().lowercase()
         if (userRepository.existsByEmail(normalizedEmail)) {
             throw IllegalArgumentException("Email already exists")
@@ -33,10 +37,18 @@ class UserService (
 
         val roleEntity = getOrCreateRole(role)
 
+        var integration: Integration? = null
+
+        if (integrationId != null) {
+            integration = integrationRepository.getReferenceById(integrationId)
+        }
+
         val user = User(
             email = normalizedEmail,
             passwordHash = passwordEncoder.encode(rawPassword) ?: throw RuntimeException(InnerExceptionCode.HASH_NOT_CALCULATED.toString()),
-            roles = mutableSetOf(roleEntity)
+            roles = mutableSetOf(roleEntity),
+            createdWithIntegration = integration,
+            externalId = externalUserId
         )
         return userRepository.saveAndFlush(user)
     }
