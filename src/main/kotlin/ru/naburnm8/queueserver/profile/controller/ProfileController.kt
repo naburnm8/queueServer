@@ -30,7 +30,7 @@ class ProfileController (
     }
 
     @Profile("dev")
-    @PostMapping("/teacher")
+    @PostMapping("/devEndpointTeacher")
     @ResponseStatus(HttpStatus.CREATED)
     fun registerTeacher(@RequestBody req: RegisterTeacherRequest): RegisterResponse {
         val teacher = profileService.registerTeacher(req)
