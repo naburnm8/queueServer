@@ -25,7 +25,7 @@ class AuthController(
             ip = http.remoteAddr
         )
 
-        return AuthResponse(accessToken = tokens.accessToken, refreshToken = tokens.refreshToken)
+        return AuthResponse(accessToken = tokens.accessToken, refreshToken = tokens.refreshToken, userRole = tokens.userRole)
     }
 
     @PostMapping("/refresh")
@@ -36,7 +36,7 @@ class AuthController(
             ip = http.remoteAddr
         )
 
-        return AuthResponse(accessToken = tokens.accessToken, refreshToken = tokens.refreshToken)
+        return AuthResponse(accessToken = tokens.accessToken, refreshToken = tokens.refreshToken, userRole = tokens.userRole)
     }
 
     @PostMapping("/logout")

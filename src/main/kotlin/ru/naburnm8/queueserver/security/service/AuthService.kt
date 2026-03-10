@@ -11,6 +11,7 @@ import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.security.JwtProps
 import ru.naburnm8.queueserver.security.TokenUtil
 import ru.naburnm8.queueserver.security.entity.RefreshToken
+import ru.naburnm8.queueserver.security.entity.Role
 import ru.naburnm8.queueserver.security.entity.User
 import ru.naburnm8.queueserver.security.repository.RefreshTokenRepository
 import ru.naburnm8.queueserver.security.repository.UserRepository
@@ -18,7 +19,7 @@ import ru.naburnm8.queueserver.security.request.LoginRequest
 import java.time.Instant
 
 
-data class Tokens(val accessToken: String, val refreshToken: String)
+data class Tokens(val accessToken: String, val refreshToken: String, val userRole: Role)
 
 @Service
 class AuthService (
@@ -48,7 +49,7 @@ class AuthService (
         )
         refreshTokenRepository.save(refresh)
 
-        return Tokens(accessToken = access, refreshToken = refreshValue)
+        return Tokens(accessToken = access, refreshToken = refreshValue, userRole = user.roles.first())
     }
 
     @Transactional
@@ -75,7 +76,7 @@ class AuthService (
         refreshTokenRepository.save(newEntity)
 
         val newAccess = issueAccessToken(token.user)
-        return Tokens(accessToken = newAccess, refreshToken = newValue)
+        return Tokens(accessToken = newAccess, refreshToken = newValue, userRole = token.user.roles.first())
     }
 
     @Transactional
