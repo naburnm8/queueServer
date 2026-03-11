@@ -9,9 +9,12 @@ import ru.naburnm8.queueserver.profile.repository.StudentRepository
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
 import ru.naburnm8.queueserver.profile.request.RegisterStudentRequest
 import ru.naburnm8.queueserver.profile.request.RegisterTeacherRequest
+import ru.naburnm8.queueserver.profile.transporter.StudentTransporter
+import ru.naburnm8.queueserver.profile.transporter.TeacherTransporter
 import ru.naburnm8.queueserver.security.RoleName
 import ru.naburnm8.queueserver.security.service.UserService
 import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class ProfileService (
@@ -19,6 +22,38 @@ class ProfileService (
     private val userService: UserService,
     private val teacherRepository: TeacherRepository,
 ) {
+    @Transactional
+    fun getMeStudent(requesterId: UUID): StudentTransporter {
+        val found = studentRepository.findById(requesterId).getOrNull() ?: throw RuntimeException("${InnerExceptionCode.USER_NOT_FOUND}")
+
+        return StudentTransporter(
+            id = found.userId ?: UUID(0,0),
+            firstName = found.firstName,
+            lastName = found.lastName,
+            patronymic = found.patronymic,
+            academicGroup = found.academicGroup,
+            telegram = found.telegram,
+            avatarUrl = found.avatarUrl
+        )
+
+    }
+
+    @Transactional
+    fun getMeTeacher(requesterId: UUID): TeacherTransporter {
+        val found = teacherRepository.findById(requesterId).getOrNull() ?: throw RuntimeException("${InnerExceptionCode.USER_NOT_FOUND}")
+
+        return TeacherTransporter(
+            id = found.userId ?: UUID(0,0),
+            firstName = found.firstName,
+            lastName = found.lastName,
+            patronymic = found.patronymic,
+            department = found.department,
+            telegram = found.telegram,
+            avatarUrl = found.avatarUrl
+        )
+    }
+
+
     @Transactional
     fun registerStudent(req: RegisterStudentRequest, integrationId: UUID? = null, externalUserId: UUID? = null): Student {
         val existingUser = userService.findByEmailOrNull(req.email)
