@@ -24,8 +24,24 @@ services:
       DB_URL: postgres:5432/app_db
       DB_USER: app_user
       DB_PASS: app_pass
+    expose:
+      - "8081"
+
+  caddy:
+    image: caddy:2
+    environment:
+      DOMAIN: mindleak.ru # Using friend's server for development
+    depends_on:
+      - app
     ports:
-      - "8081:8081"
+      - "6780:80"
+      - "8067:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
 
 volumes:
   postgres_data:
+  caddy_data:
+  caddy_config:
