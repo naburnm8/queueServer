@@ -9,8 +9,10 @@ import ru.naburnm8.queueserver.profile.repository.StudentRepository
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
 import ru.naburnm8.queueserver.profile.request.RegisterStudentRequest
 import ru.naburnm8.queueserver.profile.request.RegisterTeacherRequest
+import ru.naburnm8.queueserver.profile.transporter.ProfileMultifieldType
 import ru.naburnm8.queueserver.profile.transporter.StudentTransporter
 import ru.naburnm8.queueserver.profile.transporter.TeacherTransporter
+import ru.naburnm8.queueserver.profile.transporter.UpdateProfileTransporter
 import ru.naburnm8.queueserver.security.RoleName
 import ru.naburnm8.queueserver.security.service.UserService
 import java.util.UUID
@@ -22,6 +24,44 @@ class ProfileService (
     private val userService: UserService,
     private val teacherRepository: TeacherRepository,
 ) {
+    @Transactional
+    fun updateMe(updated: UpdateProfileTransporter, requesterId: UUID): UpdateProfileTransporter {
+        var existing: Any? = studentRepository.findById(requesterId).getOrNull()
+
+
+        if (existing == null) {
+            existing = teacherRepository.findById(requesterId).getOrNull() ?: throw RuntimeException("${InnerExceptionCode.USER_NOT_FOUND}")
+            existing.firstName = updated.firstName
+            existing.lastName = updated.lastName
+            existing.patronymic = updated.patronymic
+            existing.avatarUrl = updated.avatarUrl
+            existing.telegram = updated.telegram
+
+            if (updated.multifieldType == ProfileMultifieldType.DEPARTMENT)
+                existing.department = updated.multifield
+
+            teacherRepository.save(existing)
+        } else {
+            existing as Student
+            existing.firstName = updated.firstName
+            existing.lastName = updated.lastName
+            existing.patronymic = updated.patronymic
+            existing.avatarUrl = updated.avatarUrl
+            existing.telegram = updated.telegram
+
+            if (updated.multifieldType == ProfileMultifieldType.ACADEMIC_GROUP)
+                existing.academicGroup = updated.multifield
+
+            studentRepository.save(existing)
+        }
+
+        return updated
+
+
+
+    }
+
+
     @Transactional
     fun getMeStudent(requesterId: UUID): StudentTransporter {
         val found = studentRepository.findById(requesterId).getOrNull() ?: throw RuntimeException("${InnerExceptionCode.USER_NOT_FOUND}")
@@ -61,7 +101,13 @@ class ProfileService (
             throw RuntimeException("${InnerExceptionCode.USER_ALREADY_EXISTS}")
         }
 
-        val user = userService.createUser(req.email, req.password, RoleName.ROLE_QCONSUMER)
+        val user = userService.createUser(
+            req.email,
+            req.password,
+            RoleName.ROLE_QCONSUMER,
+            integrationId = integrationId,
+            externalUserId = externalUserId
+        )
 
         val student = Student(
             user = user,
@@ -70,7 +116,7 @@ class ProfileService (
             patronymic = req.patronymic?.trim(),
             academicGroup = req.academicGroup.trim(),
             telegram = req.telegram?.trim()?.removePrefix("@"),
-            avatarUrl = req.avatarUrl?.trim()
+            avatarUrl = req.avatarUrl?.trim(),
         )
 
         return studentRepository.save(student)
@@ -83,7 +129,13 @@ class ProfileService (
             throw RuntimeException("${InnerExceptionCode.USER_ALREADY_EXISTS}")
         }
 
-        val user = userService.createUser(req.email, req.password, RoleName.ROLE_QOPERATOR)
+        val user = userService.createUser(
+            req.email,
+            req.password,
+            RoleName.ROLE_QOPERATOR,
+            integrationId = integrationId,
+            externalUserId = externalUserId
+        )
 
         val teacher = Teacher(
             user = user,
