@@ -9,6 +9,7 @@ import ru.naburnm8.queueserver.profile.repository.StudentRepository
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
 import ru.naburnm8.queueserver.profile.request.RegisterStudentRequest
 import ru.naburnm8.queueserver.profile.request.RegisterTeacherRequest
+import ru.naburnm8.queueserver.profile.response.StudentDto
 import ru.naburnm8.queueserver.profile.transporter.ProfileMultifieldType
 import ru.naburnm8.queueserver.profile.transporter.StudentTransporter
 import ru.naburnm8.queueserver.profile.transporter.TeacherTransporter
@@ -148,5 +149,43 @@ class ProfileService (
         )
 
         return teacherRepository.save(teacher)
+    }
+
+    @Transactional
+    fun getAllOrByGroupStudents(academicGroup: String? = null): List<StudentTransporter> {
+        val found = if (academicGroup == null) studentRepository.findAll() else studentRepository.findAllByAcademicGroup(academicGroup)
+        return found.map { entity -> StudentTransporter(
+            id = entity.userId ?: UUID(0,0),
+            firstName = entity.firstName,
+            lastName = entity.lastName,
+            patronymic = entity.patronymic,
+            academicGroup = entity.academicGroup,
+            telegram = entity.telegram,
+            avatarUrl = entity.avatarUrl
+        ) }
+    }
+
+    @Transactional
+    fun getAllOrByDepartmentTeachers(department: String? = null): List<TeacherTransporter> {
+        val found = if (department == null) teacherRepository.findAll() else teacherRepository.findTeachersByDepartment(department)
+        return found.map { entity -> TeacherTransporter(
+            id = entity.userId ?: UUID(0,0),
+            firstName = entity.firstName,
+            lastName = entity.lastName,
+            patronymic = entity.patronymic,
+            department = entity.department,
+            telegram = entity.telegram,
+            avatarUrl = entity.avatarUrl
+        ) }
+    }
+
+    @Transactional
+    fun getAllDistinctGroups(): List<String> {
+        return studentRepository.findAllDistinctGroups()
+    }
+
+    @Transactional
+    fun getAllDistinctDepartments(): List<String> {
+        return teacherRepository.findAllDistinctDepartments()
     }
 }

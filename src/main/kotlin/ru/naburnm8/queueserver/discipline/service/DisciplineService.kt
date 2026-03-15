@@ -13,6 +13,7 @@ import ru.naburnm8.queueserver.discipline.transporter.WorkTypeTransporter
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.profile.entity.Teacher
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
+import ru.naburnm8.queueserver.profile.transporter.TeacherTransporter
 import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
 import java.util.UUID
 
@@ -24,6 +25,23 @@ class DisciplineService (
     private val disciplineOwnershipService: DisciplineOwnershipService,
     private val queueRuntimeService: QueueRuntimeService
 ) {
+    @Transactional
+    fun getOwnersOfDiscipline(requesterId: UUID, disciplineId: UUID): List<TeacherTransporter> {
+        disciplineOwnershipService.checkOwnership(requesterId, disciplineId)
+        val discipline = disciplineRepository.findById(disciplineId).get()
+        return discipline.owners.toList().map {
+            TeacherTransporter(
+                id = it.userId!!,
+                firstName = it.firstName,
+                lastName = it.lastName,
+                patronymic = it.patronymic,
+                department = it.department,
+                telegram = it.telegram,
+                avatarUrl = it.avatarUrl
+            )
+        }
+    }
+
     @Transactional
     fun addOwnersToDiscipline(requesterId: UUID, idsToAdd: List<UUID>, disciplineId: UUID) {
         disciplineOwnershipService.checkOwnership(requesterId, disciplineId)

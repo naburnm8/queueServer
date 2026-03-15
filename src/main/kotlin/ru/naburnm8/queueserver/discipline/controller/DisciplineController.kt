@@ -24,6 +24,7 @@ import ru.naburnm8.queueserver.discipline.transporter.DisciplineTransporter
 import ru.naburnm8.queueserver.discipline.transporter.TransporterMapper
 import ru.naburnm8.queueserver.discipline.transporter.WorkTypeTransporter
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
+import ru.naburnm8.queueserver.profile.response.TeacherResponse
 import ru.naburnm8.queueserver.security.JwtUtils
 import java.util.UUID
 
@@ -32,6 +33,23 @@ import java.util.UUID
 class DisciplineController (
     private val disciplineService: DisciplineService,
 ) {
+    @GetMapping("/{disciplineId}/owners")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
+    fun getOwners(@PathVariable disciplineId: UUID): List<TeacherResponse> {
+        val subject = JwtUtils.getSubject()
+        return disciplineService.getOwnersOfDiscipline(subject, disciplineId).map {teacher ->
+            TeacherResponse(
+                id = teacher.id,
+                firstName = teacher.firstName,
+                lastName = teacher.lastName,
+                patronymic = teacher.patronymic,
+                department = teacher.department,
+                telegram = teacher.telegram,
+                avatarUrl = teacher.avatarUrl
+            )
+        }
+    }
+
 
     @PostMapping("/{disciplineId}/addOwners")
     @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
@@ -40,11 +58,18 @@ class DisciplineController (
         disciplineService.addOwnersToDiscipline(subject, addOwnersRequest.idsToAdd, disciplineId)
     }
 
-    @GetMapping()
+    @GetMapping("/my")
     @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
     fun getMyDisciplines(): DisciplinesResponse {
         return DisciplinesResponse(
             disciplines = disciplineService.getDisciplines(JwtUtils.currentAuthenticatedUserId()).map {discipline -> DisciplineDto(id = discipline.id, name = discipline.name, personalAchievementsScoreLimit = discipline.personalAchievementsScoreLimit)}
+        )
+    }
+
+    @GetMapping
+    fun getDisciplines(): DisciplinesResponse {
+        return DisciplinesResponse(
+            disciplines = disciplineService.getDisciplines().map {discipline -> DisciplineDto(id = discipline.id, name = discipline.name, personalAchievementsScoreLimit = discipline.personalAchievementsScoreLimit)}
         )
     }
 
