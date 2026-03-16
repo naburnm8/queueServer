@@ -10,4 +10,6 @@ interface StudentRepository: JpaRepository<Student, UUID> {
 
     @Query("SELECT DISTINCT s.academicGroup FROM Student s ORDER BY s.academicGroup")
     fun findAllDistinctGroups(): List<String>
+
+    fun findStudentByUserEmail(userEmail: String): Student?
 }

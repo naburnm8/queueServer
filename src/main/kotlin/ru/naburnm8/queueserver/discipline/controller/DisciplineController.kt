@@ -58,6 +58,13 @@ class DisciplineController (
         disciplineService.addOwnersToDiscipline(subject, addOwnersRequest.idsToAdd, disciplineId)
     }
 
+    @PostMapping("/{disciplineId}/leave")
+    fun leaveDiscipline(@PathVariable disciplineId: UUID) {
+        val subject = JwtUtils.getSubject()
+        disciplineService.leaveDiscipline(subject, disciplineId)
+    }
+
+
     @GetMapping("/my")
     @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
     fun getMyDisciplines(): DisciplinesResponse {

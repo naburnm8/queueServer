@@ -26,6 +26,35 @@ class ProfileService (
     private val teacherRepository: TeacherRepository,
 ) {
     @Transactional
+    fun getTeacherByEmail(email: String): TeacherTransporter {
+        val teacher = teacherRepository.findTeacherByUserEmail(email) ?: throw RuntimeException("${InnerExceptionCode.USER_NOT_FOUND}")
+        return TeacherTransporter(
+            id = teacher.userId ?: UUID(0,0),
+            firstName = teacher.firstName,
+            lastName = teacher.lastName,
+            patronymic = teacher.patronymic,
+            department = teacher.department,
+            telegram = teacher.telegram,
+            avatarUrl = teacher.avatarUrl
+        )
+    }
+
+    @Transactional
+    fun getStudentByEmail(email: String): StudentTransporter {
+        val student = studentRepository.findStudentByUserEmail(email) ?: throw RuntimeException("${InnerExceptionCode.USER_NOT_FOUND}")
+
+        return StudentTransporter(
+            id = student.userId ?: UUID(0,0),
+            firstName = student.firstName,
+            lastName = student.lastName,
+            patronymic = student.patronymic,
+            academicGroup = student.academicGroup,
+            telegram = student.telegram,
+            avatarUrl = student.avatarUrl
+        )
+    }
+
+    @Transactional
     fun updateMe(updated: UpdateProfileTransporter, requesterId: UUID): UpdateProfileTransporter {
         var existing: Any? = studentRepository.findById(requesterId).getOrNull()
 

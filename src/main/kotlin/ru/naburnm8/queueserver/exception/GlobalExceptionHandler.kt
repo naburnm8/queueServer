@@ -13,6 +13,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handle(e: Exception): ErrorDto {
+        println(e.message)
         println(e.stackTrace.joinToString("\n"))
         return ErrorDto(message = ExceptionCodeMapper.map(e))
     }

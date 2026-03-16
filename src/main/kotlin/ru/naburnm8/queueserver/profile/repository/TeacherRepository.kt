@@ -12,7 +12,7 @@ interface TeacherRepository: JpaRepository<Teacher, UUID> {
 
     fun findByUserId(userId: UUID): Teacher?
 
-    @Query("SELECT u.email FROM Teacher t join t.user u where u.email = :userEmail")
+    @Query("SELECT t FROM Teacher t join t.user u where u.email = :userEmail")
     fun findTeacherByUserEmail(userEmail: String): Teacher?
 
     fun findTeachersByDepartment(department: String): List<Teacher>

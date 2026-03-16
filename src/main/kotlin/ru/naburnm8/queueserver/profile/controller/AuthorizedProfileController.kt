@@ -2,6 +2,9 @@ package ru.naburnm8.queueserver.profile.controller
 
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -16,6 +19,38 @@ import ru.naburnm8.queueserver.profile.service.ProfileService
 class AuthorizedProfileController (
     private val profileService: ProfileService,
 ) {
+    @PostMapping("/email/teacher")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
+    fun getTeacherByEmail(@RequestBody email: String): TeacherResponse {
+        val preparedEmail = email.replace("\"", "")
+
+        val teacher = profileService.getTeacherByEmail(preparedEmail)
+        return TeacherResponse(
+            id = teacher.id,
+            firstName = teacher.firstName,
+            lastName = teacher.lastName,
+            department = teacher.department,
+            telegram = teacher.telegram ?: "",
+            avatarUrl = teacher.avatarUrl ?: "",
+            patronymic = teacher.patronymic ?: "",
+        )
+    }
+
+    @PostMapping("/email/student")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
+    fun getStudentByEmail(@RequestBody email: String): StudentResponse {
+        val student = profileService.getStudentByEmail(email)
+        return StudentResponse(
+            id = student.id,
+            firstName = student.firstName,
+            lastName = student.lastName,
+            patronymic = student.patronymic ?: "",
+            academicGroup = student.academicGroup,
+            telegram = student.telegram ?: "",
+            avatarUrl = student.avatarUrl ?: "",
+        )
+    }
+
 
     @GetMapping("/groups")
     @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")

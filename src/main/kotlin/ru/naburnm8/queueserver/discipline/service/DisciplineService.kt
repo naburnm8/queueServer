@@ -26,6 +26,19 @@ class DisciplineService (
     private val queueRuntimeService: QueueRuntimeService
 ) {
     @Transactional
+    fun leaveDiscipline(requesterId: UUID, disciplineId: UUID) {
+        val discipline = disciplineRepository.findById(disciplineId).get()
+        val teacher = teacherRepository.findByUserId(requesterId) ?: throw RuntimeException(InnerExceptionCode.USER_NOT_FOUND.toString())
+        if (teacher !in discipline.owners) throw RuntimeException(InnerExceptionCode.DISCIPLINE_NOT_OWNED.toString())
+        discipline.owners.remove(teacher)
+        if (discipline.owners.isEmpty()) {
+            disciplineRepository.deleteById(disciplineId)
+        } else {
+            disciplineRepository.save(discipline)
+        }
+    }
+
+    @Transactional
     fun getOwnersOfDiscipline(requesterId: UUID, disciplineId: UUID): List<TeacherTransporter> {
         disciplineOwnershipService.checkOwnership(requesterId, disciplineId)
         val discipline = disciplineRepository.findById(disciplineId).get()
@@ -182,6 +195,8 @@ class DisciplineService (
 
         workType.name = workTypeIn.name
         workType.estimatedTimeMinutes = workTypeIn.estimatedTimeMinutes
+
+        queueRuntimeService.refreshByDiscipline(workType.discipline.id)
 
        val newWorkType = workTypeRepository.save(workType)
 
