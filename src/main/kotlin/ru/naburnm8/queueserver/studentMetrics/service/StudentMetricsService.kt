@@ -27,6 +27,8 @@ class StudentMetricsService (
     @Transactional
     fun upsert(data: StudentMetricsTransporterIn): StudentMetricsTransporterOut {
         disciplineOwnershipService.checkOwnership(data.teacherId, data.disciplineId)
+        println("upsert called with data: $data")
+
         if (data.id != null) {
             // update
             val inDb = studentMetricsRepository.findById(data.id)

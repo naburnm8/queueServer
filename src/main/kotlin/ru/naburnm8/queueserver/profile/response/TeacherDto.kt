@@ -6,6 +6,7 @@ data class TeacherDto(
     val id: UUID,
     val firstName: String,
     val lastName: String,
+    val patronymic: String? = null,
     val department: String,
     val telegram: String,
     val avatarUrl: String,

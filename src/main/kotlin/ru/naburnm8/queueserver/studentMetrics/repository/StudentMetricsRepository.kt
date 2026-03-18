@@ -7,7 +7,7 @@ import java.util.UUID
 
 interface StudentMetricsRepository: JpaRepository<StudentMetrics, UUID> {
 
-    @Query("SELECT sm FROM StudentMetrics sm WHERE sm.discipline = :disciplineId AND sm.student = :studentId")
+    @Query("SELECT sm FROM StudentMetrics sm WHERE sm.discipline.id = :disciplineId AND sm.student.userId = :studentId")
     fun findByStudentIdAndDisciplineId(studentId: UUID, disciplineId: UUID): StudentMetrics?
 
     fun findByDisciplineId(disciplineId: UUID): List<StudentMetrics>

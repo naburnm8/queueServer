@@ -41,7 +41,7 @@ class StudentMetricsController (
 
         val inserted = studentMetricsService.upsert(
             StudentMetricsTransporterIn(
-                id = null,
+                id = req.id,
                 disciplineId = disciplineId,
                 studentId = studentId,
                 teacherId = subject,

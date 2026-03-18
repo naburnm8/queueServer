@@ -6,6 +6,7 @@ data class StudentDto(
     val id: UUID,
     val firstName: String,
     val lastName: String,
+    val patronymic: String? = null,
     val academicGroup: String,
     val telegram: String,
     val avatarUrl: String,
