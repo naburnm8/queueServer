@@ -1,6 +1,7 @@
 package ru.naburnm8.queueserver.queuePlan.controller
 
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -24,6 +25,14 @@ import java.util.UUID
 class QueuePlanController (
     private val planService: QueuePlanService
 ) {
+
+
+    @DeleteMapping("/disciplines/{disciplineId}/queuePlans/{queuePlanId}")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
+    fun deleteQueuePlan(@PathVariable disciplineId: UUID, @PathVariable queuePlanId: UUID) {
+        val subject = JwtUtils.getSubject()
+        planService.deletePlan(subject, queuePlanId, disciplineId)
+    }
 
 
     @PostMapping("/disciplines/{disciplineId}/queuePlans")
