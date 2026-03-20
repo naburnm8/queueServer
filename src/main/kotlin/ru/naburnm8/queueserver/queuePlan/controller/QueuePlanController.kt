@@ -41,7 +41,7 @@ class QueuePlanController (
         return found.map {transporter -> TransporterMapper.map(transporter)}
     }
 
-    @PutMapping("disciplines/{disciplineId}/queuePlans")
+    @PutMapping("/disciplines/{disciplineId}/queuePlans")
     @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
     fun updateQueuePlan(@PathVariable disciplineId: UUID, @RequestBody request: QueuePlanRequest): QueuePlanResponse {
         val subject = JwtUtils.getSubject()
