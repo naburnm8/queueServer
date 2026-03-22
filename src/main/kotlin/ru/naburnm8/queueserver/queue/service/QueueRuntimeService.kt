@@ -4,11 +4,13 @@ import org.springframework.stereotype.Service
 import ru.naburnm8.queueserver.queue.data.QueueSnapshot
 import ru.naburnm8.queueserver.queue.websocket.QueueWebsocketPublisher
 import ru.naburnm8.queueserver.queuePlan.repository.QueuePlanRepository
+import java.time.Instant
 
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.locks.ReentrantLock
+
 
 @Service
 class QueueRuntimeService (
@@ -28,8 +30,10 @@ class QueueRuntimeService (
         try {
             val version = versionCounter.getAndIncrement()
             val snapshot = queueViewService.buildSnapshot(queuePlanId, version)
-            cache[queuePlanId] = snapshot
-            wsPublisher.publishChanged(queuePlanId, version)
+            if (snapshot.queuePlanId != QueueSnapshot.empty.queuePlanId) {
+                cache[queuePlanId] = snapshot
+                wsPublisher.publishChanged(queuePlanId, version)
+            }
             return snapshot
         } finally {
             lock.unlock()
