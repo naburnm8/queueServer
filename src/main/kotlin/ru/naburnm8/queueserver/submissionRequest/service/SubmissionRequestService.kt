@@ -31,6 +31,12 @@ class SubmissionRequestService(
     private val workTypeRepository: WorkTypeRepository,
     private val queueRuntimeService: QueueRuntimeService
 ) {
+    @Transactional
+    fun getMyRequests(subject: UUID) : List<OutSubmissionRequestTransporter> {
+        val existing = submissionRequestRepository.findAllByStudentUserId(subject)
+        return existing.map { TransporterMapper.toTransporter(it) }
+    }
+
 
     @Transactional
     fun createForStudent(queuePlanId: UUID, requesterId: UUID, req: InSubmissionRequestTransporter): OutSubmissionRequestTransporter {

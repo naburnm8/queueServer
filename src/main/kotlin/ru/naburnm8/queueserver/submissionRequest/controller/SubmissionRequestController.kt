@@ -32,6 +32,14 @@ class SubmissionRequestController (
         return TransporterMapper.map(found)
     }
 
+    @GetMapping("/requests/my")
+    @PreAuthorize("hasRole('ROLE_QCONSUMER')")
+    fun getAllMySubmissionRequests() : List<SubmissionRequestResponse> {
+        val subject = JwtUtils.getSubject()
+        val found = submissionRequestService.getMyRequests(subject)
+        return found.map { TransporterMapper.map(it) }
+    }
+
     @PostMapping("/{queuePlanId}/requests/my")
     @PreAuthorize("hasRole('ROLE_QCONSUMER')")
     fun createSubmissionRequest(@PathVariable queuePlanId: UUID, @RequestBody req: SubmissionRequestRequest): SubmissionRequestResponse {

@@ -37,4 +37,6 @@ interface SubmissionRequestRepository: JpaRepository<SubmissionRequest, UUID> {
     """)
     fun findEnqueuedWithItems(queuePlanId: UUID): List<SubmissionRequest>
 
+    fun findAllByStudentUserId(studentUserId: UUID): List<SubmissionRequest>
+
 }
