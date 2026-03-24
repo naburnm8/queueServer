@@ -78,8 +78,8 @@ class SubmissionRequest (
     }
 
     fun clearItems() {
-        items.forEach { it.request = null }
-        items.clear()
+        val copy = items.toList()
+        copy.forEach { removeItem(it) }
         updatedAt = Instant.now()
     }
 }

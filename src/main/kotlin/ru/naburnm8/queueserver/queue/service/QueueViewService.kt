@@ -1,6 +1,7 @@
 package ru.naburnm8.queueserver.queue.service
 
 
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import ru.bmstu.naburnm8.adaptiveQueue.AdaptiveQueue
 import ru.bmstu.naburnm8.adaptiveQueue.event.EventIn
@@ -23,11 +24,13 @@ import ru.naburnm8.queueserver.studentMetrics.repository.StudentMetricsRepositor
 import ru.naburnm8.queueserver.submissionRequest.repository.SubmissionRequestRepository
 import ru.bmstu.naburnm8.adaptiveQueue.event.EventOut
 import ru.naburnm8.queueserver.queue.data.QueueEntryView
+import ru.naburnm8.queueserver.queue.repository.QueueRuntimeStateRepository
 import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
 import kotlin.collections.emptyList
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class QueueViewService (
@@ -35,8 +38,10 @@ class QueueViewService (
     private val submissionRequestRepository: SubmissionRequestRepository,
     private val studentMetricsRepository: StudentMetricsRepository,
     private val queueRuleRepository: QueueRuleRepository,
+    private val queueRuntimeStateRepository: QueueRuntimeStateRepository,
     private val objectMapper: ObjectMapper,
 ) {
+    @Transactional
     fun buildSnapshot(queuePlanId: UUID, version: Long, ignoreStatus: Boolean = false): QueueSnapshot {
         val plan = queuePlanRepository.findById(queuePlanId).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_QUEUE_PLAN}") }
 
@@ -90,10 +95,28 @@ class QueueViewService (
             )
         }
 
+        val runtime = queueRuntimeStateRepository.findById(queuePlanId)
+        val current = runtime.getOrNull()?.currentRequest
+        var foundHead: QueueEntryView? = null
+        if (current != null) {
+            foundHead = QueueEntryView(
+                place = -1,
+                requestId = current.id,
+                studentId = current.student.userId ?: UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                studentName = "${current.student.lastName} ${current.student.firstName} ${current.student.patronymic}",
+                studentAvatarUrl = current.student.avatarUrl,
+                totalMinutes = current.totalMinutes(),
+                priority = Double.MAX_VALUE,
+                status = current.status,
+            )
+        }
+
+
         return QueueSnapshot(
             queuePlanId = plan.id,
             version = version,
             generatedAt = Instant.now(),
+            current = foundHead,
             entries = out
         )
     }

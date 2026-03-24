@@ -129,12 +129,14 @@ class SubmissionRequestService(
     fun changeStatus(queuePlanId: UUID, teacherId: UUID, submissionStatusId: UUID, newStatus: SubmissionStatus) {
         queuePlanOwnershipService.checkOwnership(queuePlanId, teacherId)
         val existing = submissionRequestRepository.findById(submissionStatusId).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}") }
-        if (newStatus == SubmissionStatus.ENQUEUED || newStatus == SubmissionStatus.REJECTED) existing.status = newStatus
-        else throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
 
-        if (newStatus != existing.status) queueRuntimeService.refresh(existing.queuePlan.id)
+        if (newStatus == existing.status) {
+            return
+        }
 
+        existing.status = newStatus
         submissionRequestRepository.save(existing)
+        queueRuntimeService.refresh(existing.queuePlan.id)
     }
 
     @Transactional

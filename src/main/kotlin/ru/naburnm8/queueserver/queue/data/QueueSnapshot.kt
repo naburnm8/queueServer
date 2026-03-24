@@ -7,6 +7,7 @@ data class QueueSnapshot(
     val queuePlanId: UUID,
     val version: Long,
     val generatedAt: Instant,
+    val current: QueueEntryView? = null,
     val entries: List<QueueEntryView>
 ) {
     companion object {

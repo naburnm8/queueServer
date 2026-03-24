@@ -1,0 +1,40 @@
+package ru.naburnm8.queueserver.queue.service
+
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import ru.naburnm8.queueserver.exception.InnerExceptionCode
+import ru.naburnm8.queueserver.queue.repository.QueueRuntimeStateRepository
+import ru.naburnm8.queueserver.submissionRequest.entity.SubmissionStatus
+import ru.naburnm8.queueserver.submissionRequest.repository.SubmissionRequestRepository
+import java.time.Instant
+import java.util.UUID
+
+@Service
+class QueueInteractionService (
+    private val runtimeRepository: QueueRuntimeStateRepository,
+    private val queueRuntimeService: QueueRuntimeService,
+    private val submissionRequestRepository: SubmissionRequestRepository
+) {
+
+    @Transactional
+    fun takeNext(queuePlanId: UUID) {
+        val runtime = runtimeRepository.findById(queuePlanId).orElseThrow()
+
+        val snapshot = queueRuntimeService.getOrBuild(queuePlanId)
+
+        val next = snapshot.entries.firstOrNull() ?: throw IllegalStateException("${InnerExceptionCode.QUEUE_EMPTY}")
+
+        val request = submissionRequestRepository.findById(next.requestId).orElseThrow()
+        request.status = SubmissionStatus.DEQUEUED
+        request.updatedAt = Instant.now()
+
+        runtime.currentRequest = request
+        runtime.takenAt = Instant.now()
+
+        runtimeRepository.save(runtime)
+        submissionRequestRepository.save(request)
+
+        queueRuntimeService.refresh(queuePlanId)
+    }
+
+}

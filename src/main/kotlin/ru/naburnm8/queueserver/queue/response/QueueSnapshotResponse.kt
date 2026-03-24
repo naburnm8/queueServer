@@ -8,5 +8,6 @@ data class QueueSnapshotResponse(
     val queuePlanId: UUID,
     val version: Long,
     val generatedAt: Instant,
+    val current: QueueEntryViewResponse?,
     val entries: List<QueueEntryViewResponse>
 )

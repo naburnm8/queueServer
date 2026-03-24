@@ -8,6 +8,8 @@ import ru.naburnm8.queueserver.discipline.service.DisciplineOwnershipService
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.profile.repository.TeacherRepository
 import ru.naburnm8.queueserver.profile.response.TeacherDto
+import ru.naburnm8.queueserver.queue.entity.QueueRuntimeState
+import ru.naburnm8.queueserver.queue.repository.QueueRuntimeStateRepository
 import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
 import ru.naburnm8.queueserver.queuePlan.entity.QueuePlan
 import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
@@ -23,7 +25,8 @@ class QueuePlanService (
     private val teacherRepository: TeacherRepository,
     private val disciplineRepository: DisciplineRepository,
     private val disciplineOwnershipService: DisciplineOwnershipService,
-    private val queueRuntimeService: QueueRuntimeService
+    private val queueRuntimeService: QueueRuntimeService,
+    private val queueRuntimeStateRepository: QueueRuntimeStateRepository
 ) {
     @Transactional
     fun deletePlan(requesterId: UUID, planId: UUID, disciplineId: UUID) {
@@ -62,7 +65,14 @@ class QueuePlanService (
             status = QueueStatus.DRAFT
         )
 
-        queuePlanRepository.save(planEntity)
+        val saved = queuePlanRepository.save(planEntity)
+
+        println("Saved ${saved.id}")
+
+        val runtime = QueueRuntimeState(
+            queuePlan = saved,
+        )
+        queueRuntimeStateRepository.save(runtime)
 
         return TransporterMapper.toTransporter(planEntity)
     }
