@@ -30,7 +30,7 @@ class QueueRuntimeService (
         try {
             val version = versionCounter.getAndIncrement()
             val snapshot = queueViewService.buildSnapshot(queuePlanId, version)
-            if (snapshot.queuePlanId != QueueSnapshot.empty.queuePlanId) {
+            if (snapshot.generatedAt.toString() != Instant.EPOCH.toString()) {
                 cache[queuePlanId] = snapshot
                 wsPublisher.publishChanged(queuePlanId, version)
             }

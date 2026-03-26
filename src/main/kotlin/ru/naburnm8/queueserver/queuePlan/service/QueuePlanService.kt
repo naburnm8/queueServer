@@ -104,8 +104,8 @@ class QueuePlanService (
         val planEntity = planEntityOptional.get()
         if (requesterId != planEntity.createdBy.userId) throw RuntimeException("${InnerExceptionCode.QUEUE_PLAN_NOT_OWNED}")
         planEntity.status = newStatus
-
         queuePlanRepository.save(planEntity)
+        queueRuntimeService.refresh(planEntity.id)
     }
 
     @Transactional

@@ -46,7 +46,9 @@ class QueueViewService (
         val plan = queuePlanRepository.findById(queuePlanId).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_QUEUE_PLAN}") }
 
         if (plan.status != QueueStatus.ACTIVE && !ignoreStatus) {
-            return QueueSnapshot.empty
+            val empty = QueueSnapshot.empty
+            empty.queuePlanId = plan.id
+            return empty
         }
 
         val enqueuedRequests = submissionRequestRepository.findEnqueuedWithItems(queuePlanId)

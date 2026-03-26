@@ -57,6 +57,7 @@ class SecurityConfig (
                 it.requestMatchers("/actuator/health").permitAll()
                 it.requestMatchers("/api/dev/**").permitAll()
                 it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                it.requestMatchers("/ws", "/ws/**").permitAll()
                 it.anyRequest().authenticated()
             }
             .oauth2ResourceServer {rs ->

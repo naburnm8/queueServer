@@ -5,7 +5,7 @@ import java.time.Instant
 import java.util.UUID
 
 data class QueueSnapshot(
-    val queuePlanId: UUID,
+    var queuePlanId: UUID,
     val version: Long,
     val generatedAt: Instant,
     val current: QueueEntryView? = null,
