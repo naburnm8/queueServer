@@ -1,6 +1,7 @@
 package ru.naburnm8.queueserver.queue.response
 
 import ru.naburnm8.queueserver.queue.data.QueueEntryView
+import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import java.time.Instant
 import java.util.UUID
 
@@ -9,5 +10,6 @@ data class QueueSnapshotResponse(
     val version: Long,
     val generatedAt: Instant,
     val current: QueueEntryViewResponse?,
-    val entries: List<QueueEntryViewResponse>
+    val entries: List<QueueEntryViewResponse>,
+    var status: QueueStatus = QueueStatus.EMPTY
 )

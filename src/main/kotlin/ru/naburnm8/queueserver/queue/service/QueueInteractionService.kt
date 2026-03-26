@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.queue.repository.QueueRuntimeStateRepository
+import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
+import ru.naburnm8.queueserver.queuePlan.repository.QueuePlanRepository
 import ru.naburnm8.queueserver.submissionRequest.entity.SubmissionStatus
 import ru.naburnm8.queueserver.submissionRequest.repository.SubmissionRequestRepository
 import java.time.Instant
@@ -13,7 +15,8 @@ import java.util.UUID
 class QueueInteractionService (
     private val runtimeRepository: QueueRuntimeStateRepository,
     private val queueRuntimeService: QueueRuntimeService,
-    private val submissionRequestRepository: SubmissionRequestRepository
+    private val submissionRequestRepository: SubmissionRequestRepository,
+    private val queuePlanRepository: QueuePlanRepository
 ) {
 
     @Transactional
@@ -35,6 +38,12 @@ class QueueInteractionService (
         submissionRequestRepository.save(request)
 
         queueRuntimeService.refresh(queuePlanId)
+    }
+
+    @Transactional
+    fun getStatus(queuePlanId: UUID): QueueStatus {
+        val queuePlan = queuePlanRepository.findById(queuePlanId).orElseThrow()
+        return queuePlan.status
     }
 
 }

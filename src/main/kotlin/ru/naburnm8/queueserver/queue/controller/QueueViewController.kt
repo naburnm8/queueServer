@@ -13,6 +13,7 @@ import ru.naburnm8.queueserver.queue.response.QueueSnapshotResponse
 import ru.naburnm8.queueserver.queue.service.QueueAccessService
 import ru.naburnm8.queueserver.queue.service.QueueInteractionService
 import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
+import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import java.util.UUID
 
 @RestController("/api/queuePlans")
@@ -21,18 +22,23 @@ class QueueViewController (
     private val queueAccessService: QueueAccessService,
     private val queueInteractionService: QueueInteractionService
 ) {
-
     @GetMapping("/{queuePlanId}/view")
     fun view(@PathVariable queuePlanId: UUID, @RequestParam(required = false, defaultValue = "false") force: Boolean, authentication: Authentication): QueueSnapshotResponse {
         val userId = UUID.fromString((authentication.principal as Jwt).subject)
 
         val granted = queueAccessService.check(queuePlanId, userId, authentication.authorities)
 
-        return if (granted == QueueAccessService.TypeOfGrantedAuthority.QCONSUMER) DataMapper.map(queueRuntimeService.getOrBuild(queuePlanId))
+        val toReturn = if (granted == QueueAccessService.TypeOfGrantedAuthority.QCONSUMER) DataMapper.map(queueRuntimeService.getOrBuild(queuePlanId))
         else {
             if (force) DataMapper.map(queueRuntimeService.refresh(queuePlanId))
             else DataMapper.map(queueRuntimeService.getOrBuild(queuePlanId))
         }
+
+        val status = queueInteractionService.getStatus(queuePlanId)
+
+        toReturn.status = status
+
+        return toReturn
     }
 
     @PostMapping("/{queuePlanId}/takeNext")
