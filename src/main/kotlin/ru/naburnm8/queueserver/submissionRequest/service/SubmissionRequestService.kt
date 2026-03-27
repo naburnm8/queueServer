@@ -6,6 +6,8 @@ import ru.naburnm8.queueserver.discipline.repository.WorkTypeRepository
 import ru.naburnm8.queueserver.exception.InnerExceptionCode
 import ru.naburnm8.queueserver.invitation.service.InvitationMatcherService
 import ru.naburnm8.queueserver.profile.repository.StudentRepository
+import ru.naburnm8.queueserver.profile.transporter.StudentTransporter
+import ru.naburnm8.queueserver.queue.repository.QueueRuntimeStateRepository
 import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
 import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import ru.naburnm8.queueserver.queuePlan.repository.QueuePlanRepository
@@ -29,8 +31,12 @@ class SubmissionRequestService(
     private val queuePlanOwnershipService: QueuePlanOwnershipService,
     private val studentRepository: StudentRepository,
     private val workTypeRepository: WorkTypeRepository,
-    private val queueRuntimeService: QueueRuntimeService
+    private val queueRuntimeService: QueueRuntimeService,
+    private val queueRuntimeStateRepository: QueueRuntimeStateRepository
 ) {
+
+
+
     @Transactional
     fun getMyRequests(subject: UUID) : List<OutSubmissionRequestTransporter> {
         val existing = submissionRequestRepository.findAllByStudentUserId(subject)
@@ -70,10 +76,7 @@ class SubmissionRequestService(
             invitationMatcherService.consume(invite)
         }
 
-        if (saved.status == SubmissionStatus.ENQUEUED) {
-            queueRuntimeService.refresh(saved.queuePlan.id)
-        }
-
+        queueRuntimeService.refresh(saved.queuePlan.id)
         return TransporterMapper.toTransporter(saved)
 
     }
@@ -96,10 +99,7 @@ class SubmissionRequestService(
 
         val saved = submissionRequestRepository.save(existing)
 
-        if (saved.status == SubmissionStatus.ENQUEUED) {
-            queueRuntimeService.refresh(saved.queuePlan.id)
-        }
-
+        queueRuntimeService.refresh(saved.queuePlan.id)
         return TransporterMapper.toTransporter(saved)
 
     }
@@ -109,9 +109,16 @@ class SubmissionRequestService(
         val existing = submissionRequestRepository.findByQueuePlanIdAndStudentUserId(queuePlanId, requesterId)
             ?: throw RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}")
 
-        queueRuntimeService.refresh(existing.queuePlan.id)
+        val runtime = queueRuntimeStateRepository.findById(existing.queuePlan.id).orElseThrow()
+        if (runtime.currentRequest?.id == existing.id) {
+            runtime.currentRequest = null
+            runtime.takenAt = null
+            queueRuntimeStateRepository.save(runtime)
+        }
 
         submissionRequestRepository.delete(existing)
+
+        queueRuntimeService.refresh(existing.queuePlan.id)
     }
 
     @Transactional
@@ -145,6 +152,28 @@ class SubmissionRequestService(
 
         return if (status == null ) submissionRequestRepository.findAllByQueuePlanId(queuePlanId).map { TransporterMapper.toTransporter(it) }
         else submissionRequestRepository.findAllByQueuePlanIdAndStatus(queuePlanId, status).map { TransporterMapper.toTransporter(it) }
+    }
+
+    @Transactional
+    fun getAllRequestsShort(queuePlanId: UUID, requesterId: UUID) : List<Pair<OutSubmissionRequestTransporter, StudentTransporter>> {
+        queuePlanOwnershipService.checkOwnership(queuePlanId, requesterId)
+
+        val all = submissionRequestRepository.findAllWithItems(queuePlanId)
+        val students = all.map { StudentTransporter(
+            id = it.student.userId ?: UUID(0,0),
+            firstName = it.student.firstName,
+            academicGroup = it.student.academicGroup,
+            lastName = it.student.lastName,
+            patronymic = it.student.patronymic,
+            avatarUrl = it.student.avatarUrl,
+            telegram = it.student.telegram,
+        ) }
+
+        val allMapped = all.map { TransporterMapper.toTransporter(it) }
+
+        return allMapped.zip(students)
+
+
     }
 
     private fun addAllItems(entity: SubmissionRequest, items: List<RequestItemTransporter>) {

@@ -18,6 +18,29 @@ class QueueInteractionService (
     private val submissionRequestRepository: SubmissionRequestRepository,
     private val queuePlanRepository: QueuePlanRepository
 ) {
+    @Transactional
+    fun take(queuePlanId: UUID, requestId: UUID) {
+        val runtime = runtimeRepository.findById(queuePlanId).orElseThrow()
+
+        val snapshot = queueRuntimeService.getOrBuild(queuePlanId)
+
+        val entry = snapshot.entries.find {it.requestId == requestId} ?: throw IllegalStateException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}")
+
+        val request = submissionRequestRepository.findById(entry.requestId).orElseThrow()
+
+        if (request.status != SubmissionStatus.ENQUEUED) throw IllegalStateException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
+
+        request.status = SubmissionStatus.DEQUEUED
+        request.updatedAt = Instant.now()
+
+        runtime.currentRequest = request
+        runtime.takenAt = Instant.now()
+
+        runtimeRepository.save(runtime)
+        submissionRequestRepository.save(request)
+        queueRuntimeService.refresh(queuePlanId)
+    }
+
 
     @Transactional
     fun takeNext(queuePlanId: UUID) {

@@ -14,7 +14,6 @@ import ru.naburnm8.queueserver.queue.response.QueueSnapshotResponse
 import ru.naburnm8.queueserver.queue.service.QueueAccessService
 import ru.naburnm8.queueserver.queue.service.QueueInteractionService
 import ru.naburnm8.queueserver.queue.service.QueueRuntimeService
-import ru.naburnm8.queueserver.queuePlan.entity.QueueStatus
 import java.util.UUID
 
 @RestController
@@ -51,5 +50,16 @@ class QueueViewController (
         queueAccessService.check(queuePlanId, userId, authentication.authorities)
 
         queueInteractionService.takeNext(queuePlanId)
+    }
+
+
+    @PostMapping("/{queuePlanId}/take/{requestId}")
+    @PreAuthorize("hasAnyRole('ROLE_QOPERATOR')")
+    fun take(@PathVariable queuePlanId: UUID, @PathVariable requestId: UUID, authentication: Authentication) {
+        val userId = UUID.fromString((authentication.principal as Jwt).subject)
+
+        queueAccessService.check(queuePlanId, userId, authentication.authorities)
+
+        queueInteractionService.take(queuePlanId, requestId)
     }
 }

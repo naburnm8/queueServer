@@ -14,6 +14,7 @@ import ru.naburnm8.queueserver.security.JwtUtils
 import ru.naburnm8.queueserver.submissionRequest.entity.SubmissionStatus
 import ru.naburnm8.queueserver.submissionRequest.request.SubmissionRequestRequest
 import ru.naburnm8.queueserver.submissionRequest.response.SubmissionRequestResponse
+import ru.naburnm8.queueserver.submissionRequest.response.SubmissionRequestShortResponse
 import ru.naburnm8.queueserver.submissionRequest.service.SubmissionRequestService
 import ru.naburnm8.queueserver.submissionRequest.transporter.TransporterMapper
 import java.util.UUID
@@ -71,11 +72,29 @@ class SubmissionRequestController (
         return found.map { transporter -> TransporterMapper.map(transporter) }
     }
 
+    @GetMapping("/{queuePlanId}/requests/short")
+    @PreAuthorize("hasRole('ROLE_QOPERATOR')")
+    fun getAllSubmissionRequestsShort(@PathVariable queuePlanId: UUID): List<SubmissionRequestShortResponse> {
+        val subject = JwtUtils.getSubject()
+        val found = submissionRequestService.getAllRequestsShort(queuePlanId, subject)
+        return found.map {
+            SubmissionRequestShortResponse(
+                id = it.first.id,
+                studentId = it.first.studentId,
+                studentName = "${it.second.lastName} ${it.second.firstName} ${it.second.patronymic}",
+                avatarUrl = it.second.avatarUrl,
+                status = it.first.status,
+                totalMinutes = it.first.totalMinutes,
+                queuePlanId = it.first.queuePlanId,
+            )
+        }
+    }
+
     @PutMapping("/{queuePlanId}/requests/{requestId}/status")
     @PreAuthorize("hasRole('ROLE_QOPERATOR')")
     fun updateSubmissionRequestStatus(@PathVariable queuePlanId: UUID, @PathVariable requestId: UUID, @RequestParam status: SubmissionStatus) {
         val subject = JwtUtils.getSubject()
-        submissionRequestService.changeStatus(queuePlanId, requestId, subject, status)
+        submissionRequestService.changeStatus(queuePlanId, subject, requestId, status)
     }
 
 }
