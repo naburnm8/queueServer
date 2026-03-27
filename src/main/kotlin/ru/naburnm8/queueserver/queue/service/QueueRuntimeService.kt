@@ -32,8 +32,8 @@ class QueueRuntimeService (
             val snapshot = queueViewService.buildSnapshot(queuePlanId, version)
             if (snapshot.generatedAt.toString() != Instant.EPOCH.toString()) {
                 cache[queuePlanId] = snapshot
-                wsPublisher.publishChanged(queuePlanId, version)
             }
+            wsPublisher.publishChanged(queuePlanId, version)
             return snapshot
         } finally {
             lock.unlock()

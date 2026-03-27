@@ -34,8 +34,10 @@ class QueuePlanService (
         if (planEntityOptional.isEmpty) throw RuntimeException("${InnerExceptionCode.NO_SUCH_QUEUE_PLAN}")
         val planEntity = planEntityOptional.get()
         if (planEntity.discipline.id != disciplineId) throw RuntimeException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
+        if (planEntity.status == QueueStatus.ACTIVE) throw IllegalStateException("${InnerExceptionCode.SCHEMA_CORRUPTION}")
         disciplineOwnershipService.checkOwnership(requesterId, disciplineId)
         queuePlanRepository.deleteById(planId)
+        queueRuntimeService.invalidate(planId)
     }
 
 
