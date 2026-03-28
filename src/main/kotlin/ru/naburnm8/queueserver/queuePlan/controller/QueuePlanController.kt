@@ -76,8 +76,33 @@ class QueuePlanController (
             transporter.discipline,
             transporter.status,
             transporter.teacher,
-            transporter.slotDurationMinutes
+            transporter.slotDurationMinutes,
+            transporter.useTime,
+            transporter.wTime,
+            transporter.useDebts,
+            transporter.wDebts,
+            transporter.useAchievements,
+            transporter.wAchievements
         ) }
+    }
+
+    @GetMapping("/queuePlans/short/{queuePlanId}")
+    fun getShortQueuePlan(@PathVariable queuePlanId: UUID) : QueuePlanShortResponse {
+        val found = planService.getShortPlanById(queuePlanId)
+            return QueuePlanShortResponse(
+                found.id,
+                found.title,
+                found.discipline,
+                found.status,
+                found.teacher,
+                found.slotDurationMinutes,
+                found.useTime,
+                found.wTime,
+                found.useDebts,
+                found.wDebts,
+                found.useAchievements,
+                found.wAchievements
+            )
     }
 
     @GetMapping("/queuePlans/{queuePlanId}")

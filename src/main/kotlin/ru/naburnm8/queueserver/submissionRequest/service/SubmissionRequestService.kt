@@ -34,7 +34,15 @@ class SubmissionRequestService(
     private val queueRuntimeService: QueueRuntimeService,
     private val queueRuntimeStateRepository: QueueRuntimeStateRepository
 ) {
+    @Transactional
+    fun leaveQueue(queuePlanId: UUID, requesterId: UUID) {
+        val existing = submissionRequestRepository.findByQueuePlanIdAndStudentUserId(queuePlanId, requesterId)
+            ?: throw RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}")
 
+        existing.status = SubmissionStatus.DEQUEUED
+
+        queueRuntimeService.refresh(existing.queuePlan.id)
+    }
 
 
     @Transactional

@@ -13,4 +13,10 @@ data class QueuePlanShortResponse(
     val status: QueueStatus,
     val teacher: TeacherDto,
     val slotDurationMinutes: Int,
+    val useTime: Boolean,
+    val wTime: Double,
+    val useDebts: Boolean,
+    val wDebts: Double,
+    val useAchievements: Boolean,
+    val wAchievements: Double
 )

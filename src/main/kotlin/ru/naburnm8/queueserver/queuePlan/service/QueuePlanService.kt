@@ -130,8 +130,46 @@ class QueuePlanService (
                 telegram = entity.createdBy.telegram ?: "",
                 avatarUrl = entity.createdBy.avatarUrl ?: ""
             ),
-            slotDurationMinutes = entity.slotDurationMinutes
+            slotDurationMinutes = entity.slotDurationMinutes,
+            useTime = entity.useTime,
+            wTime = entity.wTime,
+            useDebts = entity.useDebts,
+            wDebts = entity.wDebts,
+            useAchievements = entity.useAchievements,
+            wAchievements = entity.wAchievements
         ) }
+    }
+
+    @Transactional
+    fun getShortPlanById(queuePlanId: UUID): QueuePlanShortTransporter {
+        val entityOptional = queuePlanRepository.findById(queuePlanId)
+        if (entityOptional.isEmpty) throw RuntimeException("${InnerExceptionCode.NO_SUCH_QUEUE_PLAN}")
+        val entity = entityOptional.get()
+        return QueuePlanShortTransporter(
+            id = entity.id,
+            title = entity.title,
+            status = entity.status,
+            discipline = DisciplineDto(
+                id = entity.discipline.id,
+                name = entity.discipline.name,
+                personalAchievementsScoreLimit = entity.discipline.personalAchievementsScoreLimit,
+            ),
+            teacher = TeacherDto(
+                id = entity.createdBy.userId ?: UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                firstName = entity.createdBy.firstName,
+                lastName = entity.createdBy.lastName,
+                department = entity.createdBy.department,
+                telegram = entity.createdBy.telegram ?: "",
+                avatarUrl = entity.createdBy.avatarUrl ?: ""
+            ),
+            slotDurationMinutes = entity.slotDurationMinutes,
+            useTime = entity.useTime,
+            wTime = entity.wTime,
+            useDebts = entity.useDebts,
+            wDebts = entity.wDebts,
+            useAchievements = entity.useAchievements,
+            wAchievements = entity.wAchievements
+        )
     }
 
     @Transactional

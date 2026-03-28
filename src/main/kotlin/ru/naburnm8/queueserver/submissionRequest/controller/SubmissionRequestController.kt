@@ -49,6 +49,14 @@ class SubmissionRequestController (
         return TransporterMapper.map(created)
     }
 
+    @PostMapping("/{queuePlanId}/requests/my/leave")
+    @PreAuthorize("hasRole('ROLE_QCONSUMER')")
+    fun leaveQueue(@PathVariable("queuePlanId") queuePlanId: UUID) {
+        val subject = JwtUtils.getSubject()
+        submissionRequestService.leaveQueue(queuePlanId, subject)
+
+    }
+
     @PutMapping("/{queuePlanId}/requests/my")
     @PreAuthorize("hasRole('ROLE_QCONSUMER')")
     fun updateMySubmissionRequest(@PathVariable queuePlanId: UUID, @RequestBody req: SubmissionRequestRequest): SubmissionRequestResponse {
