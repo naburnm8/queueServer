@@ -28,6 +28,7 @@ class QueueRuntimeService (
         val lock = locks.computeIfAbsent(queuePlanId) { ReentrantLock() }
         lock.lock()
         try {
+            cache.keys.removeIf {it == queuePlanId}
             val version = versionCounter.getAndIncrement()
             val snapshot = queueViewService.buildSnapshot(queuePlanId, version)
             if (snapshot.generatedAt.toString() != Instant.EPOCH.toString()) {
