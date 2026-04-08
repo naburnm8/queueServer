@@ -18,6 +18,8 @@ import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 import ru.naburnm8.queueserver.discipline.service.DisciplineService
 import ru.naburnm8.queueserver.discipline.transporter.DisciplineTransporter
+import ru.naburnm8.queueserver.integration.response.IntegrationRegistrationResponse
+import ru.naburnm8.queueserver.profile.request.RegisterTeacherRequest
 import ru.naburnm8.queueserver.profile.service.ProfileService
 
 @Service
@@ -51,22 +53,67 @@ class IntegrationService (
     }
 
 
-    fun registerStudentViaIntegration(id: UUID, req: RegisterStudentRequest): UUID {
+    fun registerTeacherViaIntegration(id: UUID, req: RegisterTeacherRequest): UUID {
         val integration = integrationRepository.findById(id).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_INTEGRATION}") }
         val payloadBody = objectMapper.readValue(integration.payload, IntegrationPayloadBody::class.java)
         val restTemplate = RestTemplate()
-        val response: ResponseEntity<UUID> = restTemplate.postForEntity(
+        val response: ResponseEntity<IntegrationRegistrationResponse> = restTemplate.postForEntity(
             payloadBody.baseUrl + payloadBody.registerUrl,
             req,
-            UUID::class.java
+            IntegrationRegistrationResponse::class.java
         )
         if (response.statusCode != HttpStatus.OK) {
             throw RuntimeException("Registration failed")
         }
 
-        profileService.registerStudent(req)
+        response.body?.id ?: throw RuntimeException("Registration failed")
 
-        return response.body!!
+        val newStudent = RegisterTeacherRequest(
+            email = response.body?.email!!,
+            password = req.password,
+            firstName = response.body?.firstName!!,
+            lastName = response.body?.lastName!!,
+            patronymic = response.body?.patronymic!!,
+            department = response.body?.multifield!!,
+            telegram = req.telegram!!,
+            avatarUrl = req.avatarUrl,
+        )
+
+        profileService.registerTeacher(newStudent)
+
+        return response.body?.id!!
+    }
+
+
+    fun registerStudentViaIntegration(id: UUID, req: RegisterStudentRequest): UUID {
+        val integration = integrationRepository.findById(id).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_INTEGRATION}") }
+        val payloadBody = objectMapper.readValue(integration.payload, IntegrationPayloadBody::class.java)
+        val restTemplate = RestTemplate()
+        val response: ResponseEntity<IntegrationRegistrationResponse> = restTemplate.postForEntity(
+            payloadBody.baseUrl + payloadBody.registerUrl,
+            req,
+            IntegrationRegistrationResponse::class.java
+        )
+        if (response.statusCode != HttpStatus.OK) {
+            throw RuntimeException("Registration failed")
+        }
+
+        response.body?.id ?: throw RuntimeException("Registration failed")
+
+        val newStudent = RegisterStudentRequest(
+            email = response.body?.email!!,
+            password = req.password,
+            firstName = response.body?.firstName!!,
+            lastName = response.body?.lastName!!,
+            patronymic = response.body?.patronymic!!,
+            academicGroup = response.body?.multifield!!,
+            telegram = req.telegram!!,
+            avatarUrl = req.avatarUrl,
+        )
+
+        profileService.registerStudent(newStudent)
+
+        return response.body?.id!!
     }
 
     @Transactional
