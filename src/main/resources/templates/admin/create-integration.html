@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create integration</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>Create integration</h1>
+        <div class="muted">Fill in integration data</div>
+
+        <form th:action="@{/admin/integrations/create}" th:object="${form}" method="post" style="margin-top: 18px;">
+            <div class="form-grid">
+                <div class="full">
+                    <label>Name</label>
+                    <input th:field="*{name}" type="text" placeholder="Example server"/>
+                </div>
+
+                <div class="full">
+                    <label>Base URL</label>
+                    <input th:field="*{baseUrl}" type="text" placeholder="https://api.example.com"/>
+                </div>
+                <div class="full">
+                    <label>Registration URL</label>
+                    <input th:field="*{registerUrl}" type="text" placeholder="/api/register"/>
+                </div>
+
+
+                <div class="full actions">
+                    <button type="submit">Create integration</button>
+                    <a class="button secondary" th:href="@{/admin}">Back</a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>

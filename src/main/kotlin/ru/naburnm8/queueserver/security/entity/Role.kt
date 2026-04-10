@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import ru.naburnm8.queueserver.security.RoleName
+import ru.naburnm8.queueserver.security.toReadableText
 import java.util.UUID
 
 @Entity
@@ -18,4 +19,8 @@ class Role (
     @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false, unique = true, length = 255)
     val name: RoleName = RoleName.ROLE_QCONSUMER
-)
+) {
+    fun toReadableText(): String {
+        return name.toReadableText()
+    }
+}

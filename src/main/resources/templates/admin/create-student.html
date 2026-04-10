@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create student</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>Create student</h1>
+        <div class="muted">Fill in the user data</div>
+
+        <form th:action="@{/admin/users/students/create}" th:object="${form}" method="post" style="margin-top: 18px;">
+            <div class="form-grid">
+                <div>
+                    <label>Email</label>
+                    <input th:field="*{email}" type="email" placeholder="student@example.com"/>
+                </div>
+
+                <div>
+                    <label>Password</label>
+                    <input th:field="*{password}" type="password" placeholder="Password"/>
+                </div>
+
+                <div>
+                    <label>Name</label>
+                    <input th:field="*{firstName}" type="text" placeholder="Semeg"/>
+                </div>
+
+                <div>
+                    <label>Last name</label>
+                    <input th:field="*{lastName}" type="text" placeholder="Tapkov"/>
+                </div>
+
+                <div>
+                    <label>Patronymic</label>
+                    <input th:field="*{patronymic}" type="text" placeholder="Andreevich"/>
+                </div>
+
+                <div>
+                    <label>Academic group</label>
+                    <input th:field="*{academicGroup}" type="text" placeholder="IU3-82B"/>
+                </div>
+
+                <div>
+                    <label>Telegram</label>
+                    <input th:field="*{telegram}" type="text" placeholder="@username"/>
+                </div>
+
+                <div class="full actions">
+                    <button type="submit">Create student</button>
+                    <a class="button secondary" th:href="@{/admin}">Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

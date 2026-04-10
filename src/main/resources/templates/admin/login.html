@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<div class="login-box card">
+    <h1>Login into the admin panel</h1>
+    <div class="muted">Use an account with ADMIN role</div>
+
+    <form th:action="@{/admin/login}" method="post" style="margin-top: 18px;">
+        <label>Email</label>
+        <input type="text" name="username"/>
+
+        <label>Password</label>
+        <input type="password" name="password"/>
+
+        <button type="submit">Login</button>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    </form>
+
+    <p th:if="${param.error}" class="error">Wrong credentials</p>
+    <p th:if="${param.logout}" class="success-text">You've been logged out</p>
+</div>
+</body>
+</html>
