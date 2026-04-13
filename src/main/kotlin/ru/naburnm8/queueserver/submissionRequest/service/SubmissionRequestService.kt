@@ -141,9 +141,9 @@ class SubmissionRequestService(
     // Teacher actions
 
     @Transactional
-    fun changeStatus(queuePlanId: UUID, teacherId: UUID, submissionStatusId: UUID, newStatus: SubmissionStatus) {
+    fun changeStatus(queuePlanId: UUID, teacherId: UUID, submissionRequestId: UUID, newStatus: SubmissionStatus) {
         queuePlanOwnershipService.checkOwnership(queuePlanId, teacherId)
-        val existing = submissionRequestRepository.findById(submissionStatusId).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}") }
+        val existing = submissionRequestRepository.findById(submissionRequestId).orElseThrow { RuntimeException("${InnerExceptionCode.NO_SUCH_SUBMISSION_REQUEST}") }
 
         if (newStatus == existing.status) {
             return

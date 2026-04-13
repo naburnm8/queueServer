@@ -8,6 +8,14 @@ import java.util.UUID
 
 object TransporterMapper {
 
+    fun outToIn(out: OutSubmissionRequestTransporter): InSubmissionRequestTransporter {
+        return InSubmissionRequestTransporter(
+            id = out.id,
+            items = out.items,
+            inviteCode = null,
+        )
+    }
+
     fun toTransporter(entity: SubmissionRequest): OutSubmissionRequestTransporter {
         return OutSubmissionRequestTransporter(
             id = entity.id,
