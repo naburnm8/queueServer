@@ -25,38 +25,51 @@ class TestDataService(
             ?: throw IllegalStateException("ROLE_QCONSUMER not found")
 
         val password = "123456"
+        val passwordHash = passwordEncoder.encode(password) ?: throw IllegalStateException("Failed to hash the password")
 
-        return (1..count).map { index ->
+        val users = mutableListOf<User>()
+        val credentials = mutableListOf<TestStudentResponse>()
+
+        repeat(count) { i ->
+            val index = i + 1
             val suffix = UUID.randomUUID().toString().take(8)
             val email = "load_student_${index}_$suffix@test.local"
 
-            val user = userRepository.save(
-                User(
-                    email = email,
-                    passwordHash = passwordEncoder.encode(password) ?: "",
-                    isEnabled = true,
-                    roles = mutableSetOf(role)
-                )
-            )
-
-            val student = studentRepository.save(
-                Student(
-                    user = user,
-                    firstName = "Load",
-                    lastName = "Student$index",
-                    patronymic = null,
-                    academicGroup = "LOAD-TEST",
-                    telegram = "@load_student_$index",
-                    avatarUrl = null
-                )
-            )
-
-            TestStudentResponse(
+            users += User(
                 email = email,
+                passwordHash = passwordHash,
+                isEnabled = true,
+                roles = mutableSetOf(role)
+            )
+        }
+
+        val savedUsers = userRepository.saveAll(users)
+
+        val students = savedUsers.mapIndexed { i, user ->
+            val index = i + 1
+
+            Student(
+                user = user,
+                firstName = "Load",
+                lastName = "Student$index",
+                patronymic = null,
+                academicGroup = "LOAD-TEST",
+                telegram = "@load_student_$index",
+                avatarUrl = null
+            )
+        }
+
+        val savedStudents = studentRepository.saveAll(students)
+
+        savedStudents.forEachIndexed { i, student ->
+            credentials += TestStudentResponse(
+                email = savedUsers[i].email,
                 password = password,
                 studentId = student.userId!!
             )
         }
+
+        return credentials
     }
 
     @Transactional
